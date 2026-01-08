@@ -1,13 +1,13 @@
 from pathlib import Path
-
+import os
 
 # BASE DIRECTORY
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY
-SECRET_KEY = 'dev-secret-key-change-later'
-DEBUG = True
-ALLOWED_HOSTS = ['*']
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-secret-key-change-later")
+
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
 # APPLICATIONS
 INSTALLED_APPS = [
