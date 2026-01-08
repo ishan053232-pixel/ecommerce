@@ -1,0 +1,103 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Wishlist | The Fashion Flare</title>
+  <link rel="stylesheet" href="{% static 'css/output.css' %}">
+</head>
+
+<body class="bg-[#f7f7f7] text-gray-900">
+
+<!-- HEADER -->
+<header class="border-b border-gray-200 sticky top-0 z-50 bg-white">
+  <div class="max-w-[1400px] mx-auto px-10 py-8 flex justify-between items-center">
+
+    <a href="/" class="text-xs tracking-[0.3em] uppercase font-light">
+      THE FASHION FLARE
+    </a>
+
+    <nav class="hidden md:flex gap-14 text-[11px] tracking-[0.25em] uppercase text-gray-500">
+      <a href="/" class="hover:text-black transition">All</a>
+      {% for cat in categories %}
+        <a href="?category={{ cat.slug }}" class="hover:text-black transition">
+          {{ cat.name }}
+        </a>
+      {% endfor %}
+    </nav>
+
+    <a href="{% url 'cart_detail' %}" class="relative text-gray-600 hover:text-black transition">
+      🛒
+    </a>
+
+  </div>
+</header>
+
+<section class="max-w-[1400px] mx-auto px-10 py-24">
+
+  <!-- BACK -->
+  <button onclick="history.back()"
+          class="text-xs uppercase tracking-[0.3em] text-gray-500 hover:text-black transition mb-12">
+    ← Back
+  </button>
+
+  <!-- TITLE -->
+  <div class="mb-20">
+    <p class="text-xs uppercase tracking-[0.35em] text-gray-400 mb-3">
+      Saved items
+    </p>
+    <h1 class="text-4xl font-light">
+      Wishlist
+    </h1>
+  </div>
+
+  {% if items %}
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-10 gap-y-24">
+
+    {% for item in items %}
+    <div class="group">
+
+      <div class="relative overflow-hidden mb-6">
+        <a href="{% url 'product_detail' item.product.slug %}">
+          {% if item.product.images.first %}
+            <img
+              src="{{ item.product.images.first.image.url }}"
+              class="w-full h-[420px] object-cover
+                     transition-transform duration-500
+                     group-hover:scale-105">
+          {% endif %}
+        </a>
+
+        <form method="post"
+              action="{% url 'accounts:toggle_wishlist' item.product.id %}"
+              class="absolute top-4 right-4">
+          {% csrf_token %}
+          <button class="bg-white/90 rounded-full p-2 hover:bg-black hover:text-white transition">
+            ❤️
+          </button>
+        </form>
+      </div>
+
+      <p class="text-sm font-light mb-1">
+        {{ item.product.name }}
+      </p>
+
+      <p class="text-sm text-gray-600">
+        ₹ {{ item.product.get_display_price }}
+      </p>
+
+    </div>
+    {% endfor %}
+
+  </div>
+
+  {% else %}
+  <p class="text-center text-gray-500 mt-32">
+    Your wishlist is empty.
+  </p>
+  {% endif %}
+
+</section>
+
+</body>
+</html>

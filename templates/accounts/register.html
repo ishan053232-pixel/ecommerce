@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Create account | The Fashion Flare</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="{% static 'css/output.css' %}">
+</head>
+
+<body class="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8
+            opacity-0 animate-auth">
+
+    <div class="text-center mb-8">
+      <h1 class="text-2xl font-semibold text-gray-900">Create account</h1>
+      <p class="text-sm text-gray-500 mt-2">Join The Fashion Flare</p>
+    </div>
+
+    <form method="post" class="space-y-5">
+      {% csrf_token %}
+
+      <input name="username" placeholder="Username"
+        class="w-full px-4 py-3 border border-gray-300 rounded-xl" />
+
+      <input name="email" type="email" placeholder="Email"
+        class="w-full px-4 py-3 border border-gray-300 rounded-xl" />
+
+      <input name="password1" type="password" placeholder="Password"
+        class="w-full px-4 py-3 border border-gray-300 rounded-xl" />
+
+      <input name="password2" type="password" placeholder="Confirm password"
+        class="w-full px-4 py-3 border border-gray-300 rounded-xl" />
+
+      <button
+        class="w-full bg-black text-white py-3 rounded-xl hover:bg-gray-900 transition font-medium">
+        Create account
+      </button>
+    </form>
+
+    <p class="text-center text-sm text-gray-600 mt-6">
+      Already have an account?
+      <a href="{% url 'login' %}" class="font-medium text-black hover:underline">
+        Sign in
+      </a>
+    </p>
+  </div>
+
+</body>
+</html>

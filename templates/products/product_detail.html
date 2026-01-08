@@ -1,0 +1,528 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>
+        {% if product.meta_title %}
+            {{ product.meta_title }}
+        {% else %}
+            {{ product.name }} | The Fashion Flare
+        {% endif %}
+    </title>
+
+    {% if product.meta_description %}
+    <meta name="description" content="{{ product.meta_description }}">
+    {% endif %}
+
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    </head>
+
+<body class="bg-white text-gray-900 antialiased tracking-wide">
+
+<!-- HEADER -->
+<header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-200">
+  <div class="max-w-[1400px] mx-auto px-10 py-6
+              grid grid-cols-3 items-center
+              text-xs uppercase tracking-[0.3em]">
+
+    <!-- LEFT -->
+    <a href="javascript:history.back()"
+       class="text-gray-400 hover:text-black transition justify-self-start">
+      ← Back
+    </a>
+
+    <!-- CENTER BRAND -->
+    <a href="/"
+       class="justify-self-center font-light text-gray-900">
+      The Fashion Flare
+    </a>
+
+    <!-- RIGHT ICONS -->
+    <div class="flex items-center gap-6 justify-self-end text-gray-600">
+
+      <!-- Wishlist -->
+<button
+  id="wishlistBtn"
+  data-product="{{ product.id }}"
+  class="group relative p-2">
+
+  <svg
+    class="w-5 h-5 transition-all duration-200
+           {% if is_wishlisted %}
+             fill-black stroke-black
+           {% else %}
+             fill-none stroke-gray-400
+           {% endif %}
+           group-hover:stroke-black"
+    viewBox="0 0 24 24"
+    stroke-width="1.6"
+    stroke="currentColor"
+    fill="currentColor">
+
+    <path
+      d="M12 21s-6.716-4.35-9.428-7.062C-1.9 9.608 1.42 3 6.5 3
+         9.24 3 12 5.272 12 5.272S14.76 3 17.5 3
+         C22.58 3 25.9 9.608 21.428 13.938
+         18.716 16.65 12 21 12 21z" />
+  </svg>
+
+</button>
+
+
+      <!-- Cart -->
+      <a href="{% url 'cart_detail' %}"
+         class="relative hover:text-black transition">
+
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M3 3h2l.4 2M7 13h10l4-8H5.4
+                   M7 13L5.4 5
+                   M7 13l-1.3 5h11.6
+                   M16 21a1 1 0 100-2
+                   1 1 0 000 2
+                   zm-8 0a1 1 0 100-2
+                   1 1 0 000 2z"/>
+        </svg>
+
+        <!-- Badge -->
+        <span id="cartBadge"
+              class="{% if cart_count == 0 %}hidden{% endif %}
+                     absolute -top-2 -right-2
+                     bg-black text-white text-[10px]
+                     px-1.5 py-0.5 rounded-full">
+          {{ cart_count }}
+        </span>
+      </a>
+
+    </div>
+  </div>
+</header>
+
+
+<!-- MAIN -->
+<section class="max-w-[1400px] mx-auto px-10 py-24
+                grid grid-cols-1 lg:grid-cols-2 gap-24">
+
+    <!-- IMAGE GALLERY -->
+    <div class="flex justify-center">
+        <div class="w-full max-w-[520px]">
+
+            <div
+    id="zoomContainer"
+    class="w-full aspect-[3/4] bg-[#f7f7f7]
+           flex items-center justify-center
+           overflow-hidden relative cursor-zoom-in">
+                <img
+    id="mainImage"
+    src="{{ images.first.image.url }}"
+    class="w-full h-full object-contain
+           transition-transform duration-200 ease-out">
+            </div>
+
+            <div class="flex gap-4 mt-8 justify-center">
+                {% for img in images %}
+                <img src="{{ img.image.url }}"
+                     class="thumb-img w-16 h-20 object-cover cursor-pointer
+                            opacity-60 hover:opacity-100 transition
+                            border border-transparent hover:border-gray-300">
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- INFO -->
+    <div class="max-w-md sticky top-28">
+
+        <h1 class="text-3xl font-light mb-3">
+            {{ product.name }}
+        </h1>
+
+        <p id="price" class="text-xl text-gray-800 mb-8">
+            ₹ {{ product.get_display_price }}
+        </p>
+
+        <p class="text-[15px] text-gray-600 leading-7 mb-14">
+            {{ product.description }}
+        </p>
+
+        <!-- SIZE -->
+        <div class="mb-12">
+            <p class="text-xs uppercase tracking-[0.3em] mb-4 text-gray-500">
+                Size
+            </p>
+            <div class="flex gap-3">
+                {% for size in sizes %}
+                <button
+                    data-size="{{ size }}"
+                    onclick="selectSize('{{ size }}', this)"
+                    class="size-btn w-12 h-12 text-xs uppercase
+                           border border-gray-300
+                           flex items-center justify-center
+                           transition-all duration-200">
+                    {{ size }}
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- COLOR -->
+    <div class="mb-14">
+    <p class="text-xs uppercase tracking-[0.3em] mb-4 text-gray-500">
+        Color
+    </p>
+
+    <div class="flex gap-4">
+    {% for c in colors %}
+<button
+    data-color="{{ c.color }}"
+    data-hex="{{ c.color_hex }}"
+    onclick="selectColor('{{ c.color }}', this)"
+    class="color-btn w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center">
+
+    <span class="block w-6 h-6 rounded-full"></span>
+</button>
+{% endfor %}
+    </div>
+</div>
+
+
+
+        <!-- ADD TO CART (HOME STYLE) -->
+        <button
+    id="addToCartBtn"
+    onclick="addToCart()"
+    disabled
+    class="flex items-center justify-center gap-3
+           w-full py-4
+           bg-black text-white
+           text-xs uppercase tracking-[0.3em]
+           opacity-40 cursor-not-allowed
+           transition duration-200">
+
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 3h2l.4 2M7 13h10l4-8H5.4
+                 M7 13l-1.3 5h11.6
+                 M16 21a1 1 0 100-2
+                 1 1 0 000 2
+                 zm-8 0a1 1 0 100-2
+                 1 1 0 000 2z" />
+    </svg>
+
+    <span>Add to cart</span>
+</button>
+
+
+        <!-- TRUST INFO -->
+        <div class="mt-10 pt-6 border-t text-sm text-gray-600 space-y-2">
+            <p>✔ Free delivery in 5–7 days</p>
+            <p>✔ Easy 7-day return</p>
+            <p>✔ Premium quality fabric</p>
+        </div>
+
+    </div>
+</section>
+
+<!-- STORY SECTIONS -->
+
+{% if story_sections %}
+<section class="bg-[#fafafa] py-28">
+  <div class="max-w-[1400px] mx-auto px-10 space-y-24">
+
+    {% for section in story_sections %}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+
+      <div>
+        <h2 class="text-2xl font-light mb-6">
+            {{ section.title }}
+        </h2>
+        <p class="text-gray-600 leading-8 max-w-md">
+            {{ section.description }}
+        </p>
+      </div>
+
+      <div class="aspect-[4/5] bg-gray-200 overflow-hidden">
+        <img src="{{ images.first.image.url }}"
+             class="w-full h-full object-cover">
+      </div>
+
+    </div>
+    {% endfor %}
+
+  </div>
+</section>
+{% endif %}
+
+<!-- RELATED PRODUCTS -->
+<section class="max-w-[1400px] mx-auto px-10 py-28">
+
+  <h2 class="text-sm uppercase tracking-[0.3em] text-gray-500 mb-12">
+    You may also like
+  </h2>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-10">
+
+    {% for p in related_products %}
+<div class="group">
+    <a href="{% url 'product_detail' p.slug %}">
+        {% if p.images.first %}
+            <img
+                src="{{ p.images.first.image.url }}"
+                class="w-full aspect-[3/4] object-cover
+                       group-hover:scale-105 transition duration-500"
+            >
+        {% else %}
+            <div class="w-full aspect-[3/4] bg-gray-100
+                        flex items-center justify-center text-xs text-gray-400">
+                No image
+            </div>
+        {% endif %}
+
+        <div class="mt-4 text-center">
+            <p class="text-sm font-light">{{ p.name }}</p>
+            <p class="text-sm text-gray-500 mt-1">
+                ₹ {{ p.get_display_price }}
+            </p>
+        </div>
+    </a>
+</div>
+{% endfor %}
+
+  </div>
+</section>
+
+
+<!-- DATA -->
+{{ variants|json_script:"variant-data" }}
+{{ images_by_color|json_script:"images-by-color" }}
+
+<script>
+
+const addToCartBtn = document.getElementById("addToCartBtn");
+
+function updateAddToCartState() {
+    if (selectedColor && selectedSize) {
+        addToCartBtn.disabled = false;
+        addToCartBtn.classList.remove("opacity-40", "cursor-not-allowed");
+        addToCartBtn.classList.add("hover:bg-gray-900");
+    } else {
+        addToCartBtn.disabled = true;
+        addToCartBtn.classList.add("opacity-40", "cursor-not-allowed");
+        addToCartBtn.classList.remove("hover:bg-gray-900");
+    }
+}
+
+
+/* ---------- DATA ---------- */
+const variants = JSON.parse(
+    document.getElementById("variant-data").textContent
+);
+const imagesByColor = JSON.parse(
+    document.getElementById("images-by-color").textContent
+);
+
+let selectedColor = null;
+let selectedSize = null;
+
+const priceEl = document.getElementById("price");
+const mainImage = document.getElementById("mainImage");
+
+
+/* ---------- APPLY COLOR HEX (PASTE HERE) ---------- */
+document.querySelectorAll(".color-btn").forEach(btn => {
+    const hex = btn.dataset.hex;
+    if (hex) {
+        btn.querySelector("span").style.backgroundColor = hex;
+    }
+});
+
+
+
+/* ---------- COLOR ---------- */
+function selectColor(color, btn) {
+    selectedColor = color;
+    selectedSize = null;
+
+    document.querySelectorAll(".color-btn").forEach(b => {
+        b.classList.remove("border-black", "ring-2", "ring-black", "scale-110");
+    });
+    btn.classList.add("border-black", "ring-2", "ring-black", "scale-110");
+
+    document.querySelectorAll(".size-btn").forEach(b => {
+        b.classList.remove("opacity-30", "pointer-events-none");
+    });
+
+    document.querySelectorAll(".size-btn").forEach(b => {
+        const size = b.dataset.size;
+        const exists = variants.find(
+            v => v.color === color && v.size === size && v.stock > 0
+        );
+        if (!exists) {
+            b.classList.add("opacity-30", "pointer-events-none");
+        }
+    });
+
+    if (imagesByColor[color]?.length) {
+        mainImage.style.opacity = 0;
+        setTimeout(() => {
+            mainImage.src = imagesByColor[color][0];
+            mainImage.style.opacity = 1;
+        }, 150);
+    }
+
+    const first = variants.find(v => v.color === color);
+    if (first) updatePrice(first);
+    updateAddToCartState();
+}
+
+/* SIZE */
+function selectSize(size, btn) {
+    selectedSize = size;
+
+    document.querySelectorAll(".size-btn").forEach(b => {
+        b.classList.remove("bg-black", "text-white", "border-black", "scale-105");
+    });
+
+    btn.classList.add("bg-black", "text-white", "border-black", "scale-105");
+
+    const v = variants.find(x => x.color === selectedColor && x.size === size);
+    if (v) updatePrice(v);
+    updateAddToCartState();
+}
+
+/* PRICE */
+function updatePrice(v) {
+    if (v.discount_price) {
+        priceEl.innerHTML =
+            `₹ ${v.discount_price}
+             <span class="text-sm text-gray-400 line-through ml-2">
+                ₹ ${v.price}
+             </span>`;
+    } else {
+        priceEl.innerText = `₹ ${v.price}`;
+    }
+}
+
+/* THUMBNAILS */
+document.querySelectorAll(".thumb-img").forEach(img => {
+    img.addEventListener("click", () => {
+        mainImage.style.opacity = 0;
+        setTimeout(() => {
+            mainImage.src = img.src;
+            mainImage.style.opacity = 1;
+        }, 150);
+    });
+});
+
+/* ADD TO CART */
+function addToCart() {
+   
+
+    const variant = variants.find(v => v.color === selectedColor && v.size === selectedSize);
+    if (!variant) {
+        alert("Variant not available");
+        return;
+    }
+
+    fetch("{% url 'add_to_cart' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: `variant_id=${variant.id}&quantity=1`
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const badge = document.getElementById("cartBadge");
+            badge.innerText = data.cart_count;
+            badge.classList.remove("hidden");
+        }
+    });
+}
+
+/* AUTO SELECT FIRST COLOR */
+document.addEventListener("DOMContentLoaded", () => {
+    const firstColor = document.querySelector(".color-btn");
+    if (firstColor) firstColor.click();
+});
+
+/* ---------- IMAGE ZOOM ---------- */
+const zoomContainer = document.getElementById("zoomContainer");
+
+zoomContainer.addEventListener("mousemove", (e) => {
+    const rect = zoomContainer.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    mainImage.style.transformOrigin = `${x}% ${y}%`;
+    mainImage.style.transform = "scale(1.8)";
+});
+
+zoomContainer.addEventListener("mouseleave", () => {
+    mainImage.style.transformOrigin = "center";
+    mainImage.style.transform = "scale(1)";
+});
+</script>
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "{{ product.name|escapejs }}",
+  "image": [
+    "{{ images.first.image.url }}"
+  ],
+  "description": "{{ product.description|striptags|escapejs }}",
+  "sku": "{{ product.slug }}",
+  "brand": {
+    "@type": "Brand",
+    "name": "The Fashion Flare"
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ request.build_absolute_uri }}",
+    "priceCurrency": "INR",
+    "price": "{{ product.get_display_price }}",
+    "availability": "{{ schema_availability }}",
+    "itemCondition": "https://schema.org/NewCondition"
+  }
+}
+</script>
+
+
+<script>
+const wishlistBtn = document.getElementById("wishlistBtn");
+const heart = wishlistBtn.querySelector("svg");
+
+wishlistBtn.addEventListener("click", () => {
+  fetch(`/accounts/wishlist/toggle/${wishlistBtn.dataset.product}/`, {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": "{{ csrf_token }}",
+      "X-Requested-With": "XMLHttpRequest"
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.added) {
+      heart.classList.remove("fill-none", "stroke-gray-400");
+      heart.classList.add("fill-rose-500", "stroke-rose-500");
+    } else {
+      heart.classList.remove("fill-rose-500", "stroke-rose-500");
+      heart.classList.add("fill-none", "stroke-gray-400");
+    }
+  });
+});
+</script>
+
+
+
+</body>
+</html>

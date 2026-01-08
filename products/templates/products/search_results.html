@@ -1,0 +1,50 @@
+{% extends "home.html" %}
+{% load static %}
+
+{% block content %}
+
+<section class="max-w-[1400px] mx-auto px-10 py-24">
+
+  <p class="text-xs uppercase tracking-[0.35em] text-gray-400 mb-6">
+    Search results
+  </p>
+
+  <h1 class="text-3xl font-light mb-16">
+    {% if query %}
+      Results for "{{ query }}"
+    {% else %}
+      All products
+    {% endif %}
+  </h1>
+
+  {% if products %}
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-10 gap-y-24">
+      {% for product in products %}
+        <a href="{% url 'product_detail' product.slug %}" class="group">
+          {% if product.images.first %}
+            <img src="{{ product.images.first.image.url }}"
+     alt="{{ product.name }}"
+     class="w-full h-[420px] object-cover mb-5
+            transition group-hover:scale-105">
+
+          {% endif %}
+
+          <p class="text-sm font-light">{{ product.name }}</p>
+          <p class="text-sm text-gray-500 mt-1">
+            ₹ {{ product.get_display_price }}
+          </p>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-sm text-gray-500">
+      No products found.
+    </p>
+  {% endif %}
+
+
+
+
+</section>
+
+{% endblock %}
