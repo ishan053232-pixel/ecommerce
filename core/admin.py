@@ -1,6 +1,9 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import HeroSlide
+from .models import HomeVideo
+
+
 
 
 @admin.register(HeroSlide)
@@ -20,4 +23,8 @@ class HeroSlideAdmin(admin.ModelAdmin):
 
     preview.short_description = "Image"
 
+@admin.register(HomeVideo)
+class HomeVideoAdmin(admin.ModelAdmin):
+    list_display = ("title", "is_active", "created_at")
+    list_filter = ("is_active",)
 

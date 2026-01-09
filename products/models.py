@@ -1,4 +1,7 @@
 from django.db import models
+from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db.models import Avg
 
 
 # ==========================
@@ -57,7 +60,9 @@ class Product(models.Model):
     slug = models.SlugField(unique=True)
     description = models.TextField()
 
-    # ✅ NEW: Admin-controlled story section
+    # ======================
+    # STORY SECTION (ADMIN)
+    # ======================
     style_title = models.CharField(
         max_length=255,
         default="Designed for everyday layering"
@@ -67,12 +72,28 @@ class Product(models.Model):
         help_text="Story text shown below product details"
     )
 
+    # ======================
+    # PRICING
+    # ======================
     price = models.DecimalField(max_digits=10, decimal_places=2)
     discount_price = models.DecimalField(
         max_digits=10,
         decimal_places=2,
         blank=True,
         null=True
+    )
+
+    # ======================
+    # SEO (✅ FIXED LOCATION)
+    # ======================
+    meta_title = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="SEO title (leave blank to use product name)"
+    )
+    meta_description = models.TextField(
+        blank=True,
+        help_text="SEO meta description"
     )
 
     is_active = models.BooleanField(default=True)
@@ -83,6 +104,12 @@ class Product(models.Model):
     def get_display_price(self):
         return self.discount_price if self.discount_price else self.price
 
+    @property
+    def average_rating(self):
+        """
+        Returns average rating or None
+        """
+        return self.reviews.aggregate(avg=Avg("rating"))["avg"]
 
 
 # ==========================
@@ -104,13 +131,11 @@ class ProductVariant(models.Model):
 
     size = models.CharField(max_length=5, choices=SIZE_CHOICES)
 
-    # ✅ FREE TEXT COLOR (NO LIMIT)
     color = models.CharField(
         max_length=15,
         help_text="Example: Black, Olive Green, Wine Red"
     )
 
-    # ✅ COLOR FOR UI
     color_hex = models.CharField(
         max_length=7,
         blank=True,
@@ -129,7 +154,6 @@ class ProductVariant(models.Model):
 
     def __str__(self):
         return f"{self.product.name} - {self.size} - {self.color}"
-
 
 
 # ==========================
@@ -180,13 +204,51 @@ class ProductStorySection(models.Model):
         return f"{self.product.name} → {self.title}"
 
 
-# SEO
-meta_title = models.CharField(
-    max_length=255,
-    blank=True,
-    help_text="SEO title (leave blank to use product name)"
-)
-meta_description = models.TextField(
-    blank=True,
-    help_text="SEO meta description"
-)
+# ==========================
+# PRODUCT REVIEW ⭐⭐⭐⭐⭐
+# ==========================
+class ProductReview(models.Model):
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="reviews"
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="reviews"
+    )
+    rating = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("product", "user")
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.user.username} - {self.product.name} ({self.rating})"
+
+
+class ProductSizeGuide(models.Model):
+    product = models.OneToOneField(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="size_guide"
+    )
+
+    title = models.CharField(
+        max_length=200,
+        default="Size Guide"
+    )
+
+    content = models.TextField(
+        help_text="Use line breaks or table-style text"
+    )
+
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"Size Guide – {self.product.name}"

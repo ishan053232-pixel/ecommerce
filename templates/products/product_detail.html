@@ -148,24 +148,95 @@
         </p>
 
         <!-- SIZE -->
-        <div class="mb-12">
-            <p class="text-xs uppercase tracking-[0.3em] mb-4 text-gray-500">
-                Size
-            </p>
-            <div class="flex gap-3">
-                {% for size in sizes %}
-                <button
-                    data-size="{{ size }}"
-                    onclick="selectSize('{{ size }}', this)"
-                    class="size-btn w-12 h-12 text-xs uppercase
-                           border border-gray-300
-                           flex items-center justify-center
-                           transition-all duration-200">
-                    {{ size }}
-                </button>
-                {% endfor %}
-            </div>
-        </div>
+    <!-- SIZE -->
+<div class="mb-12">
+
+  <!-- Header row -->
+  <div class="flex items-center justify-between mb-4">
+    <p class="text-xs uppercase tracking-[0.3em] text-gray-500">
+      Size
+    </p>
+
+    {% if size_guide and size_guide.is_active %}
+    <button
+      onclick="toggleSizeGuide()"
+      class="text-[11px] uppercase tracking-widest text-gray-400 hover:text-black transition"
+    >
+      Size Guide
+    </button>
+    {% endif %}
+  </div>
+
+  <!-- Size buttons -->
+  <div class="flex gap-3">
+    {% for size in sizes %}
+    <button
+      data-size="{{ size }}"
+      onclick="selectSize('{{ size }}', this)"
+      class="size-btn w-12 h-12 text-xs uppercase
+             border border-gray-300
+             flex items-center justify-center
+             transition-all duration-200
+             hover:border-black">
+      {{ size }}
+    </button>
+    {% endfor %}
+  </div>
+
+</div>
+
+
+
+<div id="sizeGuideModal"
+     class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+
+  <div class="bg-white w-[92%] max-w-xl p-10 relative rounded-xl">
+
+    <!-- Close -->
+    <button onclick="toggleSizeGuide()"
+            class="absolute top-6 right-6 text-gray-400 hover:text-black text-xl">
+      &times;
+    </button>
+
+    <!-- Title -->
+    <h3 class="text-lg font-light tracking-wide mb-6">
+      {{ size_guide.title }}
+    </h3>
+
+    <!-- Content -->
+   {% if size_guide_rows %}
+<div class="overflow-hidden border border-gray-200 rounded-lg">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-gray-500 uppercase tracking-widest text-[11px]">
+      <tr>
+        <th class="px-4 py-3 text-left">Size</th>
+        <th class="px-4 py-3 text-left">Chest (in)</th>
+        <th class="px-4 py-3 text-left">Length (in)</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y">
+      {% for row in size_guide_rows %}
+      <tr class="hover:bg-gray-50 transition">
+        <td class="px-4 py-3 font-medium">{{ row.size }}</td>
+        <td class="px-4 py-3 text-gray-600">{{ row.chest }}</td>
+        <td class="px-4 py-3 text-gray-600">{{ row.length }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<p class="mt-4 text-xs text-gray-400">
+  Measurements may vary by 1–2 cm.
+</p>
+{% endif %}
+
+
+
+  </div>
+</div>
+
+
 
         <!-- COLOR -->
     <div class="mb-14">
@@ -254,6 +325,57 @@
   </div>
 </section>
 {% endif %}
+
+{% if user.is_authenticated %}
+
+  {% if can_review %}
+    <form id="reviewForm" class="mt-6 space-y-3">
+      {% csrf_token %}
+
+      <!-- ⭐ STAR RATING -->
+      <input type="hidden" name="rating" id="ratingInput" required>
+
+      <div id="starRating" class="flex gap-1 cursor-pointer">
+        {% for i in "12345" %}
+          <svg data-value="{{ forloop.counter }}"
+               class="star w-6 h-6 text-gray-300 hover:text-yellow-400 transition"
+               fill="currentColor"
+               viewBox="0 0 20 20">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.97a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.385 2.46a1 1 0 00-.364 1.118l1.286 3.97c.3.921-.755 1.688-1.54 1.118l-3.385-2.46a1 1 0 00-1.175 0l-3.385 2.46c-.785.57-1.84-.197-1.54-1.118l1.286-3.97a1 1 0 00-.364-1.118L2.05 9.397c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.286-3.97z"/>
+          </svg>
+        {% endfor %}
+      </div>
+
+      <!-- ✍ COMMENT -->
+      <textarea name="comment"
+                rows="4"
+                class="w-full border rounded-md p-3 text-sm"
+                placeholder="Write your review (optional)"></textarea>
+
+      <button type="submit"
+              class="bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800">
+        Submit review
+      </button>
+    </form>
+
+  {% elif user_review %}
+    <p class="text-green-600 font-medium">
+      You already reviewed this product.
+    </p>
+
+  {% else %}
+    <p class="text-gray-500">
+      Only customers who purchased this product can leave a review.
+    </p>
+  {% endif %}
+
+{% else %}
+  <p>
+    <a href="{% url 'login' %}" class="underline">Login</a> to write a review.
+  </p>
+{% endif %}
+
+
 
 <!-- RELATED PRODUCTS -->
 <section class="max-w-[1400px] mx-auto px-10 py-28">
@@ -392,6 +514,8 @@ function selectSize(size, btn) {
     updateAddToCartState();
 }
 
+
+
 /* PRICE */
 function updatePrice(v) {
     if (v.discount_price) {
@@ -520,6 +644,57 @@ wishlistBtn.addEventListener("click", () => {
     }
   });
 });
+</script>
+
+<script>
+  // ⭐ STAR CLICK HANDLING
+  const stars = document.querySelectorAll(".star");
+  const ratingInput = document.getElementById("ratingInput");
+
+  stars.forEach(star => {
+    star.addEventListener("click", () => {
+      const value = star.dataset.value;
+      ratingInput.value = value;
+
+      stars.forEach(s => {
+        s.classList.toggle("text-yellow-400", s.dataset.value <= value);
+        s.classList.toggle("text-gray-300", s.dataset.value > value);
+      });
+    });
+  });
+
+  // ⚡ AJAX SUBMIT
+  const form = document.getElementById("reviewForm");
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      fetch("{% url 'submit_review_ajax' product.slug %}", {
+        method: "POST",
+        body: new FormData(form),
+        headers: {
+          "X-Requested-With": "XMLHttpRequest"
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById("reviewsContainer").innerHTML = data.html;
+          form.remove(); // remove form after success
+        } else {
+          alert(data.error || "Something went wrong");
+        }
+      });
+    });
+  }
+</script>
+
+<script>
+function toggleSizeGuide() {
+  const modal = document.getElementById("sizeGuideModal");
+  modal.classList.toggle("hidden");
+  modal.classList.toggle("flex");
+}
 </script>
 
 

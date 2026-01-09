@@ -14,6 +14,11 @@ from .models import (
     ProductImage,
     ProductStorySection,
 )
+from .models import ProductSizeGuide
+
+
+
+
 
 # ==========================
 # PRODUCT IMAGE INLINE
@@ -135,3 +140,8 @@ class ProductVariantAdmin(SortableAdminMixin, admin.ModelAdmin):
 class ProductImageAdmin(admin.ModelAdmin):
     list_display = ("product", "is_main")
     list_filter = ("is_main",)
+
+@admin.register(ProductSizeGuide)
+class ProductSizeGuideAdmin(admin.ModelAdmin):
+    list_display = ("product", "is_active")
+    search_fields = ("product__name",)

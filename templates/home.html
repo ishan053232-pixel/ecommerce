@@ -133,52 +133,88 @@
 
 
 
-<!-- HERO -->
-<section class="relative w-full h-[80vh] overflow-hidden">
+{% if hero_slides %}
+<section class="relative w-full h-[75vh] overflow-hidden">
+
+  {% for slide in hero_slides %}
+    <div
+      class="hero-slide absolute inset-0 opacity-0 transition-opacity duration-1000 ease-in-out
+             {% if forloop.first %}opacity-100{% endif %}"
+    >
+      <!-- Background Image -->
+      <img
+        src="{{ slide.image.url }}"
+        alt="{{ slide.title }}"
+        class="w-full h-full object-cover"
+      />
+
+      <!-- Dark overlay -->
+      <div class="absolute inset-0 bg-black/40"></div>
+
+      <!-- Text content (OLD STYLE) -->
+      <div class="absolute inset-0 flex items-center">
+    <div class="max-w-[1400px] mx-auto px-10 w-full text-white">
+          <p class="tracking-[0.3em] text-sm uppercase mb-3 animate-fade-up">
+            {{ slide.tag }}
+          </p>
+
+          <h1 class="text-4xl md:text-6xl font-light leading-tight animate-fade-up delay-100">
+            {{ slide.title }}
+          </h1>
+
+          <p class="mt-4 max-w-xl text-white/80 animate-fade-up delay-200">
+            {{ slide.description }}
+          </p>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+
+</section>
+{% endif %}
 
 
-  <div class="relative h-[620px] overflow-hidden">
-
- {% for slide in slides_qs %}
-  <img src="{{ slide.image.url }}"
-       class="hero-slide absolute inset-0 w-full h-full object-cover
-              {% if forloop.first %}opacity-100{% else %}opacity-0{% endif %}
-              transition-opacity duration-1000">
-{% endfor %}
 
 
-  <div class="absolute inset-0 flex items-center">
-  <div class="ml-20 max-w-xl text-white z-10">
 
-    <p id="heroTag"
-       class="text-xs tracking-[0.35em] uppercase mb-4 opacity-0 translate-y-4 transition-all duration-700"></p>
+<!-- HERO VIDEO -->
 
-    <h1 id="heroTitle"
-    class="text-4xl md:text-5xl font-light leading-tight">
-</h1>
+{% if home_video %}
+<section class="w-full bg-black mt-8 md:mt-12">
 
-    <p id="heroDesc"
-       class="text-sm text-gray-200 mt-4 leading-relaxed opacity-0 translate-y-6 transition-all duration-700 delay-200"></p>
+
+  <div class="relative w-full h-[70vh] overflow-hidden">
+
+    <video autoplay muted loop playsinline
+           class="absolute inset-0 w-full h-full object-cover">
+      <source src="{{ home_video.video.url }}" type="video/mp4">
+    </video>
+
+    <div class="absolute inset-0 bg-black/30"></div>
+
+    {% if home_video.title or home_video.subtitle %}
+   <div class="absolute inset-0 flex items-center">
+    <div class="max-w-[1400px] mx-auto px-10 w-full text-white">
+        {% if home_video.title %}
+          <h2 class="text-3xl md:text-5xl font-light">
+            {{ home_video.title }}
+          </h2>
+        {% endif %}
+        {% if home_video.subtitle %}
+          <p class="mt-4 text-white/80 max-w-xl">
+            {{ home_video.subtitle }}
+          </p>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
   </div>
-
-  <div class="absolute inset-0 bg-black/20"></div>
-</div>
-
-
 </section>
+{% endif %}
 
 
 
-
-
-
-<!-- HERO TEXT -->
-<section class="max-w-[1400px] mx-auto px-10 mt-16">
-    <p class="max-w-xl text-sm text-gray-600 leading-relaxed">
-        Thoughtfully designed garments crafted with refined materials,
-        timeless silhouettes, and effortless everyday comfort.
-    </p>
-</section>
 
 {% if active_category == "mens" %}
 <div class="max-w-[1400px] mx-auto px-10 mt-12 flex gap-10 text-xs uppercase tracking-widest text-gray-500">
@@ -202,110 +238,159 @@
 </h2>
 
 
-    {% if products %}
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-10 gap-y-24 animate-slide">
+{% if products %}
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-10 gap-y-24 animate-slide">
 
+  {% for product in products %}
+  <a href="{% url 'product_detail' product.slug %}"
+     class="group block transition-transform duration-300 hover:-translate-y-1">
 
-        {% for product in products %}
-        <a href="{% url 'product_detail' product.slug %}" class="group">
+    {% if product.images.first %}
+    <div class="relative overflow-hidden mb-5 bg-[#f7f7f7]">
 
-            {% if product.images.first %}
-            <div class="relative overflow-hidden mb-5">
+      <!-- IMAGE -->
+      <img src="{{ product.images.first.image.url }}"
+           class="w-full h-[420px] object-cover
+                  transition-transform duration-700 ease-out
+                  group-hover:scale-105">
 
-    <img src="{{ product.images.first.image.url }}"
-         class="w-full h-[420px] object-cover transition-opacity duration-700">
+      <!-- SECOND IMAGE -->
+      {% if product.images.all|length > 1 %}
+      <img src="{{ product.images.all.1.image.url }}"
+           class="w-full h-[420px] object-cover absolute inset-0
+                  opacity-0 group-hover:opacity-100
+                  transition-opacity duration-700">
+      {% endif %}
 
-    {% if product.images.all|length > 1 %}
-    <img src="{{ product.images.all.1.image.url }}"
-         class="w-full h-[420px] object-cover absolute inset-0
-                opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-    {% endif %}
-
-</div>
-
-            {% endif %}
-
-            <p class="text-sm font-light mb-1">
-                {{ product.name }}
-            </p>
-
-            {% if product.discount_price %}
-                <p class="text-sm">
-                    ₹ {{ product.discount_price }}
-                    <span class="text-gray-400 line-through ml-2">
-                        ₹ {{ product.price }}
-                    </span>
-                </p>
-            {% else %}
-                <p class="text-sm text-gray-600">
-                    ₹ {{ product.price }}
-                </p>
-            {% endif %}
-
-        </a>
-        {% endfor %}
+      <!-- OVERLAY -->
+      <div class="absolute inset-0 bg-black/0
+                  group-hover:bg-black/5
+                  transition-colors duration-500"></div>
 
     </div>
-    {% else %}
-        <p class="text-sm text-gray-500">No products available</p>
     {% endif %}
-</section>
+
+    <!-- PRODUCT NAME -->
+    <p class="text-sm font-light mb-1
+              transition-colors duration-300
+              group-hover:text-black">
+      {{ product.name }}
+    </p>
+
+    <!-- PRICE -->
+    {% if product.discount_price %}
+      <p class="text-sm">
+        ₹ {{ product.discount_price }}
+        <span class="text-gray-400 line-through ml-2">
+          ₹ {{ product.price }}
+        </span>
+      </p>
+    {% else %}
+      <p class="text-sm text-gray-600">
+        ₹ {{ product.price }}
+      </p>
+    {% endif %}
+
+  </a>
+  {% endfor %}
+
+</div>
+{% else %}
+<p class="text-sm text-gray-500">No products available</p>
+{% endif %}
+
 
 
 <!-- FOOTER -->
-<footer class="border-t border-gray-200 mt-32">
-    <div class="max-w-[1400px] mx-auto px-10 py-20
-                grid grid-cols-2 md:grid-cols-4 gap-16
-                text-sm text-gray-600">
+<footer class="bg-[#fafafa] mt-32">
 
-        <div>
-            <p class="text-xs tracking-[0.25em] uppercase mb-6 text-black">
-                Shop
-            </p>
-            <ul class="space-y-3">
-                <li>Men</li>
-                <li>Women</li>
-                <li>Kids</li>
-            </ul>
-        </div>
+  <!-- MAIN FOOTER -->
+  <div class="max-w-[1400px] mx-auto px-10 py-20
+              grid grid-cols-1 md:grid-cols-4 gap-16">
 
-        <div>
-            <p class="text-xs tracking-[0.25em] uppercase mb-6 text-black">
-                Support
-            </p>
-            <ul class="space-y-3">
-                <li>Contact</li>
-                <li>Returns</li>
-                <li>Shipping</li>
-            </ul>
-        </div>
+    <!-- BRAND -->
+    <div class="md:col-span-1">
+      <p class="text-xs tracking-[0.3em] uppercase mb-6 text-black">
+        The Fashion Flare
+      </p>
 
-        <div>
-            <p class="text-xs tracking-[0.25em] uppercase mb-6 text-black">
-                About
-            </p>
-            <ul class="space-y-3">
-                <li>Our Story</li>
-                <li>Sustainability</li>
-            </ul>
-        </div>
-
-        <div>
-            <p class="text-xs tracking-[0.25em] uppercase mb-6 text-black">
-                Newsletter
-            </p>
-            <input type="email"
-                   placeholder="Email address"
-                   class="w-full border-b border-gray-400 py-2
-                          outline-none text-sm bg-transparent">
-        </div>
-
+      <p class="text-sm text-gray-600 leading-7 max-w-xs">
+        Contemporary fashion designed for everyday confidence.
+        Premium fabrics, modern silhouettes, and timeless style.
+      </p>
     </div>
 
-    <div class="text-center text-xs text-gray-500 py-8">
-        © 2025 THE FASHION FLARE
+    <!-- SHOP -->
+    <div>
+      <p class="text-xs tracking-[0.3em] uppercase mb-6 text-black">
+        Shop
+      </p>
+      <ul class="space-y-4 text-sm text-gray-600">
+        <li><a href="#" class="hover:text-black transition">Men</a></li>
+        <li><a href="#" class="hover:text-black transition">Women</a></li>
+        <li><a href="#" class="hover:text-black transition">New Arrivals</a></li>
+      </ul>
     </div>
+
+    <!-- SUPPORT -->
+    <div>
+      <p class="text-xs tracking-[0.3em] uppercase mb-6 text-black">
+        Support
+      </p>
+      <ul class="space-y-4 text-sm text-gray-600">
+        <li><a href="#" class="hover:text-black transition">Contact</a></li>
+        <li><a href="#" class="hover:text-black transition">Shipping & Returns</a></li>
+        <li><a href="#" class="hover:text-black transition">Size Guide</a></li>
+      </ul>
+    </div>
+
+    <!-- NEWSLETTER -->
+    <div>
+      <p class="text-xs tracking-[0.3em] uppercase mb-6 text-black">
+        Newsletter
+      </p>
+
+      <p class="text-sm text-gray-600 mb-6">
+        Get early access to new collections.
+      </p>
+
+      <div class="flex items-center border-b border-gray-400">
+        <input
+          type="email"
+          placeholder="Email address"
+          class="flex-1 bg-transparent py-2 text-sm
+                 outline-none focus:border-black"
+        >
+        <button
+          class="text-xs uppercase tracking-widest text-gray-500
+                 hover:text-black transition">
+          →
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM BAR -->
+  <div class="border-t border-gray-200">
+    <div class="max-w-[1400px] mx-auto px-10 py-8
+                flex flex-col md:flex-row
+                items-center justify-between
+                text-xs text-gray-500 gap-4">
+
+      <p>© 2026 The Fashion Flare. All rights reserved.</p>
+
+      <div class="flex gap-6">
+        <a href="#" class="hover:text-black">Privacy</a>
+        <a href="#" class="hover:text-black">Terms</a>
+        <a href="#" class="hover:text-black">Cookies</a>
+      </div>
+    </div>
+  </div>
+
 </footer>
+
+
 
 
 <div id="quickView"
@@ -324,52 +409,22 @@
   </div>
 </div>
 
-{{ slides|json_script:"hero-data" }}
 
 <script>
 const slides = document.querySelectorAll(".hero-slide");
-const heroData = JSON.parse(
-  document.getElementById("hero-data").textContent
-);
+let currentSlide = 0;
 
-const heroTag = document.getElementById("heroTag");
-const heroTitle = document.getElementById("heroTitle");
-const heroDesc = document.getElementById("heroDesc");
-
-let current = 0;
-
-
-function showSlide(index) {
-  slides.forEach((slide, i) => {
-    slide.classList.toggle("opacity-100", i === index);
-    slide.classList.toggle("opacity-0", i !== index);
-  });
-
-  [heroTag, heroTitle, heroDesc].forEach(el => {
-    el.classList.add("opacity-0", "translate-y-6");
-  });
-
-  setTimeout(() => {
-    heroTag.innerText = heroData[index].tag;
-    heroTitle.innerText = heroData[index].title;
-    heroDesc.innerText = heroData[index].description;
-
-    [heroTag, heroTitle, heroDesc].forEach(el => {
-      el.classList.remove("opacity-0", "translate-y-6");
-    });
-  }, 400);
-}
-
-
-// INIT
-showSlide(0);
-
-// AUTO SLIDE
 setInterval(() => {
-  current = (current + 1) % slides.length;
-  showSlide(current);
+  slides[currentSlide].classList.remove("opacity-100");
+  slides[currentSlide].classList.add("opacity-0");
+
+  currentSlide = (currentSlide + 1) % slides.length;
+
+  slides[currentSlide].classList.remove("opacity-0");
+  slides[currentSlide].classList.add("opacity-100");
 }, 4500);
 </script>
+
 
 
 

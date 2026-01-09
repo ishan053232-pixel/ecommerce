@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from .models import HomeVideo
+
 
 def home(request):
     category_slug = request.GET.get("category", "all")
@@ -13,16 +15,13 @@ def home(request):
     query = request.GET.get("q")
 
     categories = Category.objects.filter(is_active=True)
-
     products = Product.objects.filter(is_active=True)
 
-    # Filter by category (MEN / WOMEN)
+    # Filter by category
     if category_slug != "all":
-        products = products.filter(
-            subcategory__category__slug=category_slug
-        )
+        products = products.filter(subcategory__category__slug=category_slug)
 
-    # Filter by sub-category (T-Shirts / Jackets / Jeans)
+    # Filter by sub-category
     if sub_slug:
         products = products.filter(subcategory__slug=sub_slug)
 
@@ -30,27 +29,30 @@ def home(request):
     if query:
         products = products.filter(name__icontains=query)
 
-    slides_qs = HeroSlide.objects.filter(
+    hero_slides = HeroSlide.objects.filter(
         is_active=True,
         category__in=["all", category_slug]
     ).order_by("order")
 
-    slides = list(
-        slides_qs.values("tag", "title", "description")
-    )
+    home_video = HomeVideo.objects.filter(is_active=True).first()
 
     cart = request.session.get("cart", {})
     cart_count = sum(item["quantity"] for item in cart.values()) if cart else 0
 
-    return render(request, "home.html", {
-        "categories": categories,
-        "products": products,
-        "slides_qs": slides_qs,
-        "slides": slides,
-        "cart_count": cart_count,
-        "active_category": category_slug,
-        "active_sub": sub_slug,
-    })
+    return render(
+        request,
+        "home.html",
+        {
+            "categories": categories,
+            "products": products,
+            "hero_slides": hero_slides,
+            "home_video": home_video,
+            "cart_count": cart_count,
+            "active_category": category_slug,
+            "active_sub": sub_slug,
+        }
+    )
+
 
 def login_view(request):
     if request.method == "POST":
@@ -98,3 +100,6 @@ def orders_view(request):
 def checkout(request):
     # temporary placeholder
     return render(request, "checkout.html")
+
+
+
