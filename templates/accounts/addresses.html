@@ -1,0 +1,291 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Your Addresses</title>
+  <link rel="stylesheet" href="{% static 'css/output.css' %}">
+</head>
+
+<body class="bg-[#f7f7f7] text-gray-900">
+
+<section class="max-w-[900px] mx-auto px-10 py-20">
+
+  <!-- BACK -->
+  <button
+    onclick="history.back()"
+    class="mb-10 text-xs uppercase tracking-[0.3em]
+           text-gray-500 hover:text-black transition">
+    ← Back
+  </button>
+
+  <!-- HEADER -->
+  <div class="flex justify-between items-center mb-16">
+    <h1 class="text-4xl font-light tracking-tight">
+      Your Addresses
+    </h1>
+
+    <button
+      onclick="openAddressModal()"
+      class="border border-black px-8 py-3 text-xs uppercase tracking-[0.3em]
+             hover:bg-black hover:text-white transition">
+      Add Address
+    </button>
+  </div>
+
+  <!-- ADDRESS LIST -->
+  {% for address in addresses %}
+  <div class="bg-white rounded-2xl p-8 mb-8 shadow-sm">
+
+    <div class="flex justify-between items-start">
+      <div>
+        <p class="text-sm uppercase tracking-widest text-gray-400 mb-2">
+          {{ address.full_name }}
+        </p>
+
+        <p class="text-sm text-gray-700 leading-relaxed">
+          {{ address.address_line_1 }}
+          {% if address.address_line_2 %}, {{ address.address_line_2 }}{% endif %}<br>
+          {{ address.city }}, {{ address.state }} – {{ address.postal_code }}
+        </p>
+
+        {% if address.is_default %}
+        <span class="inline-block mt-3 text-xs uppercase tracking-widest text-green-600">
+          Default Address
+        </span>
+        {% endif %}
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="flex flex-col gap-3 text-xs uppercase tracking-widest">
+        <button
+  onclick="openEditAddressModal(this)"
+  data-id="{{ address.id }}"
+  data-full_name="{{ address.full_name }}"
+  data-phone="{{ address.phone }}"
+  data-line1="{{ address.address_line_1 }}"
+  data-line2="{{ address.address_line_2 }}"
+  data-city="{{ address.city }}"
+  data-state="{{ address.state }}"
+  data-postal="{{ address.postal_code }}"
+  data-country="{{ address.country }}"
+  data-default="{{ address.is_default }}"
+  class="text-gray-500 hover:text-black transition text-xs uppercase tracking-widest">
+  Edit
+</button>
+
+        <a href="{% url 'accounts:address_delete' address.id %}"
+           class="text-red-500 hover:text-red-700 transition">
+          Delete
+        </a>
+      </div>
+    </div>
+
+  </div>
+  {% empty %}
+    <p class="text-sm text-gray-500">
+      No addresses added yet.
+    </p>
+  {% endfor %}
+
+</section>
+
+<!-- ================= MODAL ================= -->
+<div id="addressModal"
+     class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+
+  <div class="bg-white w-full max-w-xl p-10 relative">
+
+    <!-- CLOSE -->
+    <button onclick="closeAddressModal()"
+            class="absolute top-4 right-4 text-xl">
+      ✕
+    </button>
+
+    <h2 class="text-2xl font-light mb-8">
+      Add Address
+    </h2>
+
+    <form method="post" action="{% url 'accounts:address_add' %}">
+      {% csrf_token %}
+
+      <div class="grid grid-cols-1 gap-4">
+
+        <input name="full_name" placeholder="Full Name"
+               class="border px-4 py-3">
+
+        <input name="phone" placeholder="Phone"
+               class="border px-4 py-3">
+
+        <input name="address_line_1" placeholder="Address Line 1"
+               class="border px-4 py-3">
+
+        <input name="address_line_2" placeholder="Address Line 2"
+               class="border px-4 py-3">
+
+        <div class="grid grid-cols-2 gap-4">
+          <input name="city" placeholder="City"
+                 class="border px-4 py-3">
+
+          <input name="state" placeholder="State"
+                 class="border px-4 py-3">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <input name="postal_code" placeholder="Postal Code"
+                 class="border px-4 py-3">
+
+          <input name="country" value="India"
+                 class="border px-4 py-3">
+        </div>
+
+        <label class="flex items-center gap-2 text-sm mt-2">
+          <input type="checkbox" name="is_default">
+          Set as default address
+        </label>
+
+        <button
+          type="submit"
+          class="mt-6 bg-black text-white py-4
+                 text-xs uppercase tracking-[0.3em]
+                 hover:bg-gray-900 transition">
+          Save Address
+        </button>
+
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<script>
+function openAddressModal() {
+  const modal = document.getElementById("addressModal");
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+}
+
+function closeAddressModal() {
+  const modal = document.getElementById("addressModal");
+  modal.classList.add("hidden");
+  modal.classList.remove("flex");
+}
+</script>
+
+
+<!-- ================= EDIT ADDRESS MODAL ================= -->
+<div id="editAddressModal"
+     class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+
+  <div class="bg-white w-full max-w-xl rounded-2xl p-10 relative">
+
+    <button onclick="closeEditAddressModal()"
+            class="absolute top-4 right-4 text-xl">
+      ✕
+    </button>
+
+    <h2 class="text-3xl font-light mb-10">
+      Edit Address
+    </h2>
+
+    <form method="post" id="editAddressForm">
+      {% csrf_token %}
+
+      <div class="grid grid-cols-1 gap-6">
+
+        <input name="full_name" id="edit_full_name"
+               class="border px-4 py-3 outline-none focus:border-black">
+
+        <input name="phone" id="edit_phone"
+               class="border px-4 py-3 outline-none focus:border-black">
+
+        <input name="address_line_1" id="edit_line1"
+               class="border px-4 py-3 outline-none focus:border-black">
+
+        <input name="address_line_2" id="edit_line2"
+               class="border px-4 py-3 outline-none focus:border-black">
+
+        <div class="grid grid-cols-2 gap-4">
+          <input name="city" id="edit_city"
+                 class="border px-4 py-3 outline-none focus:border-black">
+
+          <input name="state" id="edit_state"
+                 class="border px-4 py-3 outline-none focus:border-black">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <input name="postal_code" id="edit_postal"
+                 class="border px-4 py-3 outline-none focus:border-black">
+
+          <input name="country" id="edit_country"
+                 class="border px-4 py-3 outline-none focus:border-black">
+        </div>
+
+        <label class="flex items-center gap-3 text-sm text-gray-600">
+          <input type="checkbox" name="is_default" id="edit_default">
+          Set as default address
+        </label>
+
+        <button
+          type="submit"
+          class="mt-6 bg-black text-white py-4
+                 text-xs uppercase tracking-[0.3em]
+                 hover:bg-gray-900 transition">
+          Save Changes
+        </button>
+
+      </div>
+    </form>
+
+  </div>
+</div>
+<script>
+function openEditAddressModal(btn) {
+  document.getElementById("edit_full_name").value = btn.dataset.full_name;
+  document.getElementById("edit_phone").value = btn.dataset.phone;
+  document.getElementById("edit_line1").value = btn.dataset.line1;
+  document.getElementById("edit_line2").value = btn.dataset.line2 || "";
+  document.getElementById("edit_city").value = btn.dataset.city;
+  document.getElementById("edit_state").value = btn.dataset.state;
+  document.getElementById("edit_postal").value = btn.dataset.postal;
+  document.getElementById("edit_country").value = btn.dataset.country;
+  document.getElementById("edit_default").checked = btn.dataset.default === "True";
+
+  document.getElementById("editAddressForm").action =
+    `/accounts/addresses/${btn.dataset.id}/edit/`;
+
+  const modal = document.getElementById("editAddressModal");
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+}
+
+function closeEditAddressModal() {
+  const modal = document.getElementById("editAddressModal");
+  modal.classList.add("hidden");
+  modal.classList.remove("flex");
+}
+</script>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

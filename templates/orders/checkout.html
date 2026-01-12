@@ -1,0 +1,202 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Checkout | The Fashion Flare</title>
+  <link rel="stylesheet" href="{% static 'css/output.css' %}">
+</head>
+
+<body class="bg-white text-gray-900">
+
+<!-- ================= NAVBAR ================= -->
+<header class="sticky top-0 z-50 bg-white border-b border-gray-200">
+  <div class="max-w-[1400px] mx-auto px-10 py-6 flex justify-between items-center">
+
+    <a href="/" class="text-xs uppercase tracking-[0.3em] font-light">
+      THE FASHION FLARE
+    </a>
+
+    <nav class="hidden md:flex gap-12 text-[11px] uppercase tracking-[0.25em] text-gray-500">
+      <a href="/" class="hover:text-black">All</a>
+      {% for cat in categories %}
+        <a href="/?category={{ cat.slug }}" class="hover:text-black">
+          {{ cat.name }}
+        </a>
+      {% endfor %}
+    </nav>
+
+    <a href="{% url 'cart_detail' %}" class="relative text-gray-600 hover:text-black">
+      🛒
+    </a>
+  </div>
+</header>
+
+<!-- ================= CHECKOUT ================= -->
+<section class="max-w-[1200px] mx-auto px-10 py-20">
+
+  <!-- TITLE -->
+  <div class="mb-16">
+    <p class="text-xs uppercase tracking-[0.35em] text-gray-400 mb-3">
+      Checkout
+    </p>
+    <h1 class="text-4xl font-light">
+      Review & Confirm
+    </h1>
+  </div>
+
+  <!-- FORM (NO SUBMIT) -->
+  <form onsubmit="return false;">
+    {% csrf_token %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-16">
+
+      <!-- ================= LEFT ================= -->
+      <div class="lg:col-span-2 space-y-12">
+
+        <!-- ADDRESS -->
+        <div>
+          <h2 class="text-lg font-medium mb-6">
+            Delivery Address
+          </h2>
+
+          <div class="space-y-4">
+            {% for address in addresses %}
+            <label class="block border rounded-xl p-5 cursor-pointer
+                          hover:border-black transition
+                          {% if address.is_default %}border-black{% else %}border-gray-200{% endif %}">
+              <div class="flex items-start gap-4">
+                <input
+                  type="radio"
+                  name="address_id"
+                  value="{{ address.id }}"
+                  {% if address.is_default %}checked{% endif %}
+                  class="mt-1"
+                >
+
+                <div>
+                  <p class="font-medium">{{ address.full_name }}</p>
+                  <p class="text-sm text-gray-600 mt-1">
+                    {{ address.address_line_1 }}{% if address.address_line_2 %}, {{ address.address_line_2 }}{% endif %}
+                  </p>
+                  <p class="text-sm text-gray-600">
+                    {{ address.city }}, {{ address.state }} – {{ address.postal_code }}
+                  </p>
+                  <p class="text-sm text-gray-600">
+                    {{ address.phone }}
+                  </p>
+                </div>
+              </div>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- PAYMENT -->
+        <div>
+          <h2 class="text-lg font-medium mb-4">
+            Payment Method
+          </h2>
+
+          <div class="border rounded-xl p-5 text-sm text-gray-600">
+            <p class="font-medium text-gray-900 mb-1">
+              Online Payment
+            </p>
+            <p>
+              Secure payment via Razorpay
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================= RIGHT ================= -->
+      <div class="border rounded-xl p-8 h-fit">
+
+        <h2 class="text-lg font-medium mb-6">
+          Order Summary
+        </h2>
+
+        <div class="space-y-4 text-sm">
+          {% for item in cart_items %}
+          <div class="flex justify-between">
+            <span>{{ item.product.name }} × {{ item.quantity }}</span>
+            <span>₹ {{ item.total_price }}</span>
+          </div>
+          {% endfor %}
+
+          <div class="border-t pt-4 flex justify-between font-medium">
+            <span>Total</span>
+            <span>₹ {{ total_amount }}</span>
+          </div>
+        </div>
+
+        <!-- PAY BUTTON -->
+        <button
+          type="button"
+          id="payBtn"
+          class="mt-8 w-full bg-black text-white
+                 py-4 text-xs uppercase tracking-[0.3em]
+                 hover:bg-gray-900 transition">
+          Place Order & Pay
+        </button>
+
+        <p class="text-xs text-gray-400 mt-4 text-center">
+          🔒 Secure checkout
+        </p>
+
+      </div>
+
+    </div>
+  </form>
+</section>
+
+<!-- ================= RAZORPAY ================= -->
+{{ total_amount|json_script:"total-amount" }}
+{{ razorpay_order_id|json_script:"razorpay-order-id" }}
+{{ razorpay_key|json_script:"razorpay-key" }}
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+document.getElementById("payBtn").onclick = function () {
+
+  const selectedAddress = document.querySelector("input[name='address_id']:checked");
+  if (!selectedAddress) {
+    alert("Please select a delivery address");
+    return;
+  }
+
+  const totalAmount = JSON.parse(
+    document.getElementById("total-amount").textContent
+  );
+
+  const razorpayOrderId = JSON.parse(
+    document.getElementById("razorpay-order-id").textContent
+  );
+
+  const razorpayKey = JSON.parse(
+    document.getElementById("razorpay-key").textContent
+  );
+
+  var options = {
+    key: razorpayKey,
+    amount: totalAmount * 100,
+    currency: "INR",
+    name: "The Fashion Flare",
+    description: "Order Payment",
+    order_id: razorpayOrderId,
+    callback_url: "{% url 'payment_success' %}",
+    theme: {
+      color: "#000000"
+    }
+  };
+
+  var rzp = new Razorpay(options);
+  rzp.open();
+};
+</script>
+
+
+</body>
+</html>

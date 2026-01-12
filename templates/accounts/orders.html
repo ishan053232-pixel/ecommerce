@@ -10,27 +10,73 @@
 <body class="bg-[#f6f6f6] text-gray-900">
 
 <!-- ================= NAVBAR ================= -->
-<header class="sticky top-0 z-50 bg-white border-b border-gray-200">
+<header class="sticky top-0 z-50 bg-white border-b border-gray-200 backdrop-blur">
   <div class="max-w-[1400px] mx-auto px-10 py-6 flex justify-between items-center">
 
+    <!-- BRAND -->
     <a href="/" class="text-xs uppercase tracking-[0.3em] font-light">
       THE FASHION FLARE
     </a>
 
+    <!-- NAV -->
     <nav class="hidden md:flex gap-12 text-[11px] uppercase tracking-[0.25em] text-gray-500">
-      <a href="/" class="hover:text-black">All</a>
+      <a href="/" class="hover:text-black transition">All</a>
       {% for cat in categories %}
-        <a href="/?category={{ cat.slug }}" class="hover:text-black">
+        <a href="/?category={{ cat.slug }}" class="hover:text-black transition">
           {{ cat.name }}
         </a>
       {% endfor %}
     </nav>
 
-    <a href="{% url 'cart_detail' %}" class="relative text-gray-600 hover:text-black">
-      🛒
-    </a>
+    <!-- RIGHT -->
+    <div class="flex items-center gap-6 text-sm text-gray-600">
+
+      <!-- ACCOUNT -->
+      <div class="relative group hidden md:block">
+        <button class="flex items-center gap-1 hover:text-black transition">
+          <span>Hi,</span>
+          <span class="font-medium">{{ user.username }}</span>
+          <span class="text-xs ml-1 group-hover:rotate-180 transition">▼</span>
+        </button>
+
+        <!-- DROPDOWN -->
+        <div class="absolute right-0 mt-3 w-48 bg-white border border-gray-200
+                    shadow-xl rounded-xl overflow-hidden
+                    opacity-0 invisible translate-y-1
+                    group-hover:opacity-100 group-hover:visible group-hover:translate-y-0
+                    transition-all duration-200 z-50">
+
+          <a href="{% url 'accounts:profile' %}" class="block px-4 py-3 hover:bg-gray-100">
+            Profile
+          </a>
+          <a href="{% url 'accounts:wishlist' %}" class="block px-4 py-3 hover:bg-gray-100">
+            Wishlist
+          </a>
+          <a href="{% url 'accounts:orders' %}" class="block px-4 py-3 hover:bg-gray-100 font-medium">
+            Orders
+          </a>
+          <div class="border-t"></div>
+          <a href="{% url 'logout' %}" class="block px-4 py-3 text-red-500 hover:bg-gray-100">
+            Logout
+          </a>
+        </div>
+      </div>
+
+      <!-- CART -->
+      <a href="{% url 'cart_detail' %}" class="relative hover:text-black transition">
+        🛒
+        {% if cart_count %}
+        <span class="absolute -top-2 -right-2 bg-black text-white text-[10px]
+                     rounded-full px-1.5 py-0.5">
+          {{ cart_count }}
+        </span>
+        {% endif %}
+      </a>
+
+    </div>
   </div>
 </header>
+
 
 <!-- ================= PAGE ================= -->
 <section class="max-w-[1100px] mx-auto px-10 py-16">

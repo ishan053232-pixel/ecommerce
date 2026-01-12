@@ -80,9 +80,12 @@
             <span>₹ {{ total }}</span>
         </div>
 
-        <button class="w-full mt-8 bg-black text-white py-3 text-xs uppercase tracking-widest">
-            Proceed to Checkout
-        </button>
+      <a href="{% url 'checkout' %}"
+   class="block text-center w-full mt-8 bg-black text-white py-3
+          text-xs uppercase tracking-widest hover:bg-gray-900 transition">
+    Proceed to Checkout
+</a>
+
     </div>
 
 </section>

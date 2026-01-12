@@ -7,6 +7,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-secret-key-change-later")
 DEBUG = True
+RAZORPAY_KEY_ID = "rzp_test_xxxxxxxxxx"
+RAZORPAY_KEY_SECRET = "xxxxxxxxxxxx"
 
 
 ALLOWED_HOSTS = ['*']

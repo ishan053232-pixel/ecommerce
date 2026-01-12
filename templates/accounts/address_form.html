@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="{% static 'css/output.css' %}">
+</head>
+
+<body class="bg-[#f6f6f6]">
+
+<section class="max-w-[700px] mx-auto px-10 py-20">
+
+  <h1 class="text-3xl font-light mb-12">{{ title }}</h1>
+
+  <form method="post" class="space-y-6">
+    {% csrf_token %}
+
+    {% for field in form %}
+      <div>
+        <label class="block text-xs uppercase tracking-widest mb-2">
+          {{ field.label }}
+        </label>
+        {{ field }}
+      </div>
+    {% endfor %}
+
+    <button
+      class="mt-10 bg-black text-white
+             px-10 py-4 text-xs uppercase tracking-[0.3em]
+             hover:bg-gray-900 transition">
+      Save Address
+    </button>
+
+  </form>
+
+</section>
+
+</body>
+</html>

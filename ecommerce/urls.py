@@ -9,6 +9,8 @@ urlpatterns = [
     path('product/', include('products.urls')),
     path("cart/", include("cart.urls")),
      path("accounts/", include("accounts.urls")),  # 👈 IMPORTANT
+     path("orders/", include("orders.urls")),
+
 
 ]
 
