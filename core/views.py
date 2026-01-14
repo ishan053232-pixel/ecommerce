@@ -7,7 +7,7 @@ from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import HomeVideo
-
+from django.db.models import Case, When, BooleanField
 
 def home(request):
     category_slug = request.GET.get("category", "all")
@@ -15,7 +15,20 @@ def home(request):
     query = request.GET.get("q")
 
     categories = Category.objects.filter(is_active=True)
-    products = Product.objects.filter(is_active=True)
+
+    # ✅ PRODUCTS with TRENDING annotation
+    products = (
+        Product.objects
+        .filter(is_active=True)
+        .annotate(
+            is_trending=Case(
+                When(views__gte=10, then=True),
+                default=False,
+                output_field=BooleanField(),
+            )
+        )
+        .order_by("-is_trending", "-views")
+    )
 
     # Filter by category
     if category_slug != "all":
@@ -52,6 +65,7 @@ def home(request):
             "active_sub": sub_slug,
         }
     )
+
 
 
 def login_view(request):

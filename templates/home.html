@@ -1,3 +1,4 @@
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -179,9 +180,8 @@
 
 <!-- HERO VIDEO -->
 
-{% if home_video %}
-<section class="w-full bg-black mt-8 md:mt-12">
-
+{% if home_video and not active_category %}
+<section class="w-full bg-black mt-12">
 
   <div class="relative w-full h-[70vh] overflow-hidden">
 
@@ -193,18 +193,21 @@
     <div class="absolute inset-0 bg-black/30"></div>
 
     {% if home_video.title or home_video.subtitle %}
-   <div class="absolute inset-0 flex items-center">
-    <div class="max-w-[1400px] mx-auto px-10 w-full text-white">
+    <div class="absolute inset-0 flex items-center">
+      <div class="max-w-[1400px] mx-auto px-10 w-full text-white">
+
         {% if home_video.title %}
           <h2 class="text-3xl md:text-5xl font-light">
             {{ home_video.title }}
           </h2>
         {% endif %}
+
         {% if home_video.subtitle %}
           <p class="mt-4 text-white/80 max-w-xl">
             {{ home_video.subtitle }}
           </p>
         {% endif %}
+
       </div>
     </div>
     {% endif %}
@@ -226,6 +229,10 @@
 {% endif %}
 
 
+<p class="text-xs text-red-500">
+  DEBUG → {{ product.name }} | views={{ product.views }} | trending={{ product.is_trending }}
+</p>
+
 <!-- PRODUCTS -->
 <section class="max-w-[1400px] mx-auto px-10 py-24">
 
@@ -246,13 +253,21 @@
      class="group block transition-transform duration-300 hover:-translate-y-1">
 
     {% if product.images.first %}
-    <div class="relative overflow-hidden mb-5 bg-[#f7f7f7]">
+    <div class="relative overflow-hidden mb-5 bg-[#f7f7f7] rounded-lg">
 
       <!-- IMAGE -->
       <img src="{{ product.images.first.image.url }}"
            class="w-full h-[420px] object-cover
                   transition-transform duration-700 ease-out
                   group-hover:scale-105">
+
+      <!-- 🔥 TRENDING BADGE -->
+     {% if product.is_trending %}
+<span class="absolute top-3 left-3 bg-black text-white text-[10px]
+             px-3 py-1 rounded-full uppercase tracking-widest z-20">
+  🔥 Trending
+</span>
+{% endif %}
 
       <!-- SECOND IMAGE -->
       {% if product.images.all|length > 1 %}
@@ -271,9 +286,7 @@
     {% endif %}
 
     <!-- PRODUCT NAME -->
-    <p class="text-sm font-light mb-1
-              transition-colors duration-300
-              group-hover:text-black">
+    <p class="text-sm font-light mb-1 group-hover:text-black transition">
       {{ product.name }}
     </p>
 
@@ -300,21 +313,37 @@
 {% endif %}
 
 
+{% if recently_viewed %}
+<section class="mt-24">
+  <h2 class="text-xs tracking-[0.3em] uppercase mb-10">
+    Recently Viewed
+  </h2>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-10">
+    {% for product in recently_viewed %}
+      {% include "products/card.html" %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+
+
 
 <!-- FOOTER -->
-<footer class="bg-[#fafafa] mt-32">
+<footer class="bg-[#fafafa] mt-16 border-t border-gray-200">
 
   <!-- MAIN FOOTER -->
   <div class="max-w-[1400px] mx-auto px-10 py-20
-              grid grid-cols-1 md:grid-cols-4 gap-16">
+              grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-16">
 
     <!-- BRAND -->
-    <div class="md:col-span-1">
-      <p class="text-xs tracking-[0.3em] uppercase mb-6 text-black">
+    <div>
+      <p class="text-xs tracking-[0.35em] uppercase mb-6 text-black">
         The Fashion Flare
       </p>
 
-      <p class="text-sm text-gray-600 leading-7 max-w-xs">
+      <p class="text-sm text-gray-600 leading-7 max-w-sm">
         Contemporary fashion designed for everyday confidence.
         Premium fabrics, modern silhouettes, and timeless style.
       </p>
@@ -322,9 +351,10 @@
 
     <!-- SHOP -->
     <div>
-      <p class="text-xs tracking-[0.3em] uppercase mb-6 text-black">
+      <p class="text-xs tracking-[0.35em] uppercase mb-6 text-black">
         Shop
       </p>
+
       <ul class="space-y-4 text-sm text-gray-600">
         <li><a href="#" class="hover:text-black transition">Men</a></li>
         <li><a href="#" class="hover:text-black transition">Women</a></li>
@@ -334,9 +364,10 @@
 
     <!-- SUPPORT -->
     <div>
-      <p class="text-xs tracking-[0.3em] uppercase mb-6 text-black">
+      <p class="text-xs tracking-[0.35em] uppercase mb-6 text-black">
         Support
       </p>
+
       <ul class="space-y-4 text-sm text-gray-600">
         <li><a href="#" class="hover:text-black transition">Contact</a></li>
         <li><a href="#" class="hover:text-black transition">Shipping & Returns</a></li>
@@ -346,50 +377,52 @@
 
     <!-- NEWSLETTER -->
     <div>
-      <p class="text-xs tracking-[0.3em] uppercase mb-6 text-black">
+      <p class="text-xs tracking-[0.35em] uppercase mb-6 text-black">
         Newsletter
       </p>
 
-      <p class="text-sm text-gray-600 mb-6">
+      <p class="text-sm text-gray-600 mb-6 max-w-xs">
         Get early access to new collections.
       </p>
 
-      <div class="flex items-center border-b border-gray-400">
+      <form class="relative max-w-xs">
         <input
           type="email"
           placeholder="Email address"
-          class="flex-1 bg-transparent py-2 text-sm
-                 outline-none focus:border-black"
+          class="w-full bg-transparent border-b border-gray-400
+                 py-2 pr-8 text-sm outline-none
+                 focus:border-black transition"
         >
         <button
-          class="text-xs uppercase tracking-widest text-gray-500
-                 hover:text-black transition">
+          type="submit"
+          class="absolute right-0 top-1/2 -translate-y-1/2
+                 text-gray-500 hover:text-black transition">
           →
         </button>
-      </div>
+      </form>
     </div>
 
   </div>
 
   <!-- BOTTOM BAR -->
   <div class="border-t border-gray-200">
-    <div class="max-w-[1400px] mx-auto px-10 py-8
+    <div class="max-w-[1400px] mx-auto px-10 py-4
                 flex flex-col md:flex-row
-                items-center justify-between
-                text-xs text-gray-500 gap-4">
+                items-center justify-between gap-4
+                text-xs text-gray-500">
 
       <p>© 2026 The Fashion Flare. All rights reserved.</p>
 
       <div class="flex gap-6">
-        <a href="#" class="hover:text-black">Privacy</a>
-        <a href="#" class="hover:text-black">Terms</a>
-        <a href="#" class="hover:text-black">Cookies</a>
+        <a href="#" class="hover:text-black transition">Privacy</a>
+        <a href="#" class="hover:text-black transition">Terms</a>
+        <a href="#" class="hover:text-black transition">Cookies</a>
       </div>
+
     </div>
   </div>
 
 </footer>
-
 
 
 
@@ -425,7 +458,52 @@ setInterval(() => {
 }, 4500);
 </script>
 
+<script>
+const searchInput = document.getElementById("searchInput");
+const searchResults = document.getElementById("searchResults");
 
+if (searchInput) {
+  searchInput.addEventListener("input", async () => {
+    const query = searchInput.value.trim();
+
+    if (query.length < 2) {
+      searchResults.classList.add("hidden");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/search/autocomplete/?q=${query}`);
+      const data = await res.json();
+
+      if (data.length === 0) {
+        searchResults.classList.add("hidden");
+        return;
+      }
+
+      searchResults.innerHTML = data.map(item => `
+        <li>
+          <a href="/product/${item.slug}/"
+             class="block px-4 py-2 text-xs tracking-widest uppercase
+                    hover:bg-gray-100 transition">
+            ${item.name}
+          </a>
+        </li>
+      `).join("");
+
+      searchResults.classList.remove("hidden");
+    } catch (error) {
+      searchResults.classList.add("hidden");
+    }
+  });
+
+  // ✅ Hide dropdown when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!searchInput.contains(e.target)) {
+      searchResults.classList.add("hidden");
+    }
+  });
+}
+</script>
 
 
 

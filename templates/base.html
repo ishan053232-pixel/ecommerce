@@ -4,16 +4,140 @@
 <head>
   <meta charset="UTF-8">
   <title>{% block title %}The Fashion Flare{% endblock %}</title>
+
+  {% block meta %}{% endblock %}
+
   <link rel="stylesheet" href="{% static 'css/output.css' %}">
 </head>
 
-<body class="bg-white text-gray-900">
+<body class="bg-white text-gray-900 antialiased">
 
-  {% include "partials/header.html" %}
+  {% include "includes/header.html" %}
 
   {% block content %}{% endblock %}
 
-  {% include "partials/footer.html" %}
+  {% include "includes/footer.html" %}
+  {% include "includes/cart_toast.html" %}
+  {% include "includes/mini_cart.html" %}
+  {% include "includes/scripts.html" %}
+
+  <!-- MINI CART OVERLAY -->
+<div id="miniCartOverlay"
+     class="fixed inset-0 bg-black/40 z-[9998] hidden"></div>
+
+<!-- MINI CART -->
+<aside id="miniCart"
+       class="fixed top-0 right-0 h-full w-[380px] max-w-full
+              bg-white z-[9999]
+              translate-x-full transition-transform duration-300
+              flex flex-col">
+
+  <!-- HEADER -->
+  <div class="px-6 py-5 border-b flex justify-between items-center">
+    <p class="text-xs uppercase tracking-widest">Your Cart</p>
+    <button onclick="closeMiniCart()" class="text-xl">&times;</button>
+  </div>
+
+  <!-- ITEMS -->
+  <div id="miniCartItems"
+       class="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+    <!-- injected via JS -->
+  </div>
+
+  <!-- FOOTER -->
+  <div class="border-t px-6 py-5 space-y-4">
+    <div class="flex justify-between text-sm">
+      <span>Subtotal</span>
+      <span id="miniCartSubtotal">₹ 0</span>
+    </div>
+
+    <a href="{% url 'cart_detail' %}"
+       class="block text-center bg-black text-white py-3
+              text-xs uppercase tracking-widest hover:bg-gray-900">
+      View Cart
+    </a>
+
+    <a href="{% url 'checkout' %}"
+       class="block text-center border border-black py-3
+              text-xs uppercase tracking-widest hover:bg-black hover:text-white">
+      Checkout
+    </a>
+  </div>
+
+</aside>
+
+<script>
+const miniCart = document.getElementById("miniCart");
+const miniCartOverlay = document.getElementById("miniCartOverlay");
+const miniCartItems = document.getElementById("miniCartItems");
+const miniCartSubtotal = document.getElementById("miniCartSubtotal");
+
+function openMiniCart() {
+  miniCart.classList.remove("translate-x-full");
+  miniCartOverlay.classList.remove("hidden");
+  document.body.classList.add("overflow-hidden");
+  loadMiniCart();
+}
+
+function closeMiniCart() {
+  miniCart.classList.add("translate-x-full");
+  miniCartOverlay.classList.add("hidden");
+  document.body.classList.remove("overflow-hidden");
+}
+
+miniCartOverlay.addEventListener("click", closeMiniCart);
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") closeMiniCart();
+});
+
+async function loadMiniCart() {
+  const res = await fetch("/cart/mini/");
+  const data = await res.json();
+
+  miniCartItems.innerHTML = "";
+  let subtotal = 0;
+
+  if (data.items.length === 0) {
+    miniCartItems.innerHTML =
+      `<p class="text-sm text-gray-500">Your cart is empty.</p>`;
+    miniCartSubtotal.innerText = "₹ 0";
+    return;
+  }
+
+  data.items.forEach(item => {
+    subtotal += item.price * item.quantity;
+
+    miniCartItems.innerHTML += `
+      <div class="flex gap-4">
+        <img src="${item.image}"
+             class="w-16 h-20 object-cover bg-gray-100">
+
+        <div class="flex-1">
+          <p class="text-sm">${item.product}</p>
+          <p class="text-xs text-gray-500">
+            ${item.color} · ${item.size}
+          </p>
+          <p class="text-sm mt-1">₹ ${item.price}</p>
+        </div>
+
+        <button onclick="removeMiniCartItem('${item.variant_id}')"
+                class="text-xs text-red-500">
+          Remove
+        </button>
+      </div>
+    `;
+  });
+
+  miniCartSubtotal.innerText = `₹ ${subtotal}`;
+}
+
+async function removeMiniCartItem(variantId) {
+  await fetch(`/cart/remove/${variantId}/`);
+  loadMiniCart();
+}
+</script>
+
+
 
 </body>
 </html>

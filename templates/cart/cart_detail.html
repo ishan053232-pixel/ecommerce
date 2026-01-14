@@ -16,7 +16,6 @@
         <a href="javascript:history.back()" class="text-gray-500 hover:text-black">
             ← Continue Shopping
         </a>
-        
     </div>
 </header>
 
@@ -26,66 +25,126 @@
     <div>
         <h2 class="text-xl uppercase tracking-widest mb-12">Shopping Cart</h2>
 
-       {% if cart %}
-    {% for key, item in cart.items %}
-        <div class="flex gap-6 border-b pb-6">
+        {% if cart %}
+            <div class="space-y-6">
+            {% for key, item in cart.items %}
+                <div class="flex gap-6 p-6 border rounded-xl bg-white">
 
-            {% if item.image %}
-                <img src="{{ item.image }}" class="w-24 h-32 object-cover">
-            {% else %}
-                <div class="w-24 h-32 bg-gray-100 flex items-center justify-center text-xs">
-                    No Image
+                    {% if item.image %}
+                        <img src="{{ item.image }}"
+                             class="w-28 h-36 object-cover rounded-lg">
+                    {% else %}
+                        <div class="w-28 h-36 bg-gray-100 flex items-center justify-center text-xs rounded-lg">
+                            No Image
+                        </div>
+                    {% endif %}
+
+                    <div class="flex-1 flex flex-col justify-between">
+                        <div>
+    <p class="font-medium text-sm">{{ item.product }}</p>
+
+    <p class="text-xs text-gray-500 mt-1">
+        {{ item.color }} · {{ item.size }}
+    </p>
+
+    <p class="text-xs text-gray-400 mt-1">
+        Quantity: {{ item.quantity }}
+    </p>
+</div>
+
+
+                        <div class="flex items-center justify-between mt-4">
+                            <p class="text-sm font-medium">₹ {{ item.price }}</p>
+
+                            <a href="{% url 'cart_remove' item.variant_id %}"
+                               class="text-xs text-gray-400 hover:text-red-500 transition">
+                                Remove
+                            </a>
+                        </div>
+                    </div>
                 </div>
-            {% endif %}
-
-            <div class="flex-1">
-                <p class="font-medium">{{ item.product }}</p>
-                <p class="text-sm text-gray-500">
-                    Color: {{ item.color }} | Size: {{ item.size }}
-                </p>
-
-                <p class="mt-2">₹ {{ item.price }}</p>
-
-              <a href="{% url 'cart_remove' item.variant_id %}"
-   class="text-xs text-red-500 hover:underline">
-    Remove
-</a>
-
+            {% endfor %}
             </div>
-
-        </div>
-    {% endfor %}
-{% else %}
-    <p>Your cart is empty.</p>
-{% endif %}
-
-
+        {% else %}
+            <p class="text-sm text-gray-500">Your cart is empty.</p>
+        {% endif %}
+    </div>
 
     <!-- ORDER SUMMARY -->
-    <div class="border p-8 h-fit">
+    <div class="border rounded-xl p-8 h-fit bg-[#fafafa]">
+
         <h3 class="uppercase tracking-widest text-sm mb-6">Order Summary</h3>
 
-        <div class="flex justify-between text-sm mb-3">
-            <span>Subtotal</span>
-            <span>₹ {{ subtotal }}</span>
+        <div class="space-y-3 text-sm">
+            <div class="flex justify-between">
+                <span class="text-gray-600">Subtotal</span>
+                <span>₹ {{ subtotal }}</span>
+            </div>
+
+            <div class="flex justify-between">
+                <span class="text-gray-600">Shipping</span>
+                <span class="text-green-600">Free</span>
+            </div>
         </div>
 
-        <div class="flex justify-between text-sm mb-3">
-            <span>Shipping</span>
-            <span>Free</span>
-        </div>
+        <!-- COUPON -->
+        {% if coupon_code %}
+            <div class="flex items-center justify-between bg-green-50 border border-green-200
+                        rounded-lg px-4 py-3 mt-6 text-sm">
+                <div>
+                    <p class="text-xs uppercase tracking-widest text-green-700">
+                        Coupon Applied
+                    </p>
+                    <p class="font-medium text-green-800">
+                        {{ coupon_code }} · {{ discount }}% OFF
+                    </p>
+                </div>
 
-        <div class="flex justify-between text-sm font-semibold border-t pt-4">
+                <a href="{% url 'remove_coupon' %}"
+                   class="text-xs text-red-500 hover:underline">
+                    Remove
+                </a>
+            </div>
+        {% else %}
+            <form method="post" action="{% url 'apply_coupon' %}" class="mt-6">
+                {% csrf_token %}
+                <div class="flex gap-2">
+                    <input
+                        type="text"
+                        name="coupon"
+                        placeholder="Coupon code"
+                        class="flex-1 border border-gray-300 rounded-md
+                               px-3 py-2 text-xs uppercase tracking-widest
+                               outline-none focus:border-black transition"
+                    >
+                    <button
+                        type="submit"
+                        class="border border-black px-4 py-2 text-xs
+                               uppercase tracking-widest rounded-md
+                               hover:bg-black hover:text-white transition">
+                        Apply
+                    </button>
+                </div>
+
+                {% if coupon_error %}
+                    <p class="text-xs text-red-500 mt-2">{{ coupon_error }}</p>
+                {% endif %}
+            </form>
+        {% endif %}
+
+        <!-- TOTAL -->
+        <div class="flex justify-between text-base font-semibold border-t pt-6 mt-6">
             <span>Total</span>
             <span>₹ {{ total }}</span>
         </div>
 
-      <a href="{% url 'checkout' %}"
-   class="block text-center w-full mt-8 bg-black text-white py-3
-          text-xs uppercase tracking-widest hover:bg-gray-900 transition">
-    Proceed to Checkout
-</a>
-
+        <!-- CHECKOUT -->
+        <a href="{% url 'checkout' %}"
+           class="block text-center w-full mt-8 bg-black text-white py-4
+                  text-xs uppercase tracking-widest rounded-md
+                  hover:bg-gray-900 transition">
+            Proceed to Checkout
+        </a>
     </div>
 
 </section>

@@ -4,7 +4,10 @@ from . import views
 
 
 urlpatterns = [
+    
      path("search/", views.search_view, name="product_search"),
     path("<slug:slug>/", views.product_detail, name="product_detail"),
    path("review/<slug:slug>/",views.submit_review_ajax, name="submit_review_ajax"),
+   path("search/autocomplete/", views.search_autocomplete, name="search_autocomplete"),
+
 ]

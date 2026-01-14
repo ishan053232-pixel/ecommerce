@@ -110,6 +110,24 @@ class Product(models.Model):
         Returns average rating or None
         """
         return self.reviews.aggregate(avg=Avg("rating"))["avg"]
+    
+      # ======================
+    # TRENDING / NEW
+    # ======================
+    views = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+    def get_display_price(self):
+        return self.discount_price if self.discount_price else self.price
+
+    @property
+    def average_rating(self):
+        return self.reviews.aggregate(avg=Avg("rating"))["avg"]
 
 
 # ==========================

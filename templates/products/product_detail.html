@@ -3,6 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+<meta name="csrf-token" content="{{ csrf_token }}">
 
     <title>
         {% if product.meta_title %}
@@ -541,10 +542,12 @@ document.querySelectorAll(".thumb-img").forEach(img => {
 });
 
 /* ADD TO CART */
-function addToCart() {
    
+function addToCart() {
+    const variant = variants.find(
+        v => v.color === selectedColor && v.size === selectedSize
+    );
 
-    const variant = variants.find(v => v.color === selectedColor && v.size === selectedSize);
     if (!variant) {
         alert("Variant not available");
         return;
@@ -554,17 +557,33 @@ function addToCart() {
         method: "POST",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded",
-            "X-CSRFToken": "{{ csrf_token }}"
+            "X-CSRFToken": document
+                .querySelector('meta[name="csrf-token"]')
+                .content
         },
-        body: `variant_id=${variant.id}&quantity=1`
+        body: new URLSearchParams({
+            variant_id: variant.id,
+            quantity: 1
+        })
     })
-    .then(res => res.json())
+    .then(res => {
+        // 🔥 CRITICAL DEBUG
+        console.log("STATUS:", res.status);
+        return res.json();
+    })
     .then(data => {
+        console.log("DATA:", data);
+
         if (data.success) {
             const badge = document.getElementById("cartBadge");
             badge.innerText = data.cart_count;
             badge.classList.remove("hidden");
+
+            showCartToast(); // ✅ NOW THIS WILL RUN
         }
+    })
+    .catch(err => {
+        console.error("Add to cart failed:", err);
     });
 }
 
@@ -694,6 +713,38 @@ function toggleSizeGuide() {
   const modal = document.getElementById("sizeGuideModal");
   modal.classList.toggle("hidden");
   modal.classList.toggle("flex");
+}
+</script>
+
+<!-- ADD TO CART TOAST -->
+<div id="cartToast"
+     class="fixed bottom-6 right-6 z-[99999]
+            bg-black text-white text-sm
+            px-5 py-4 rounded-lg shadow-xl
+            flex items-center gap-4
+            opacity-0 translate-y-4
+            pointer-events-none
+            transition-all duration-300 ease-out">
+
+    <span>✔ Added to cart</span>
+
+    <a href="{% url 'cart_detail' %}"
+       class="underline text-xs ml-2">
+        View cart
+    </a>
+</div>
+
+
+
+<script>
+function showCartToast() {
+    const toast = document.getElementById("cartToast");
+
+    toast.style.display = "flex";
+
+    setTimeout(() => {
+        toast.style.display = "none";
+    }, 2500);
 }
 </script>
 
