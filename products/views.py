@@ -1,3 +1,4 @@
+from itertools import product
 from django.shortcuts import render, get_object_or_404,redirect
 from .models import Product, ProductVariant, Category,ProductReview
 from django.http import Http404, JsonResponse
@@ -13,8 +14,9 @@ from django.db.models import Case, When, BooleanField
 
 
 def product_detail(request, slug):
-
-    # ✅ GET PRODUCT + TRENDING FLAG
+    # =============================
+    # PRODUCT
+    # =============================
     product = (
         Product.objects
         .filter(slug=slug)
@@ -28,31 +30,18 @@ def product_detail(request, slug):
         .first()
     )
 
-    # ✅ SAFETY CHECK (MUST BE HERE)
     if not product:
         raise Http404("Product not found")
 
-    # ✅ INCREMENT VIEWS
     product.views += 1
     product.save(update_fields=["views"])
 
+    # =============================
+    # SIZE GUIDE
+    # =============================
     size_guide = getattr(product, "size_guide", None)
-
-    # =============================
-    # ✅ RECENTLY VIEWED PRODUCTS
-    # =============================
-    viewed = request.session.get("viewed_products", [])
-
-    if product.id in viewed:
-        viewed.remove(product.id)
-
-    viewed.insert(0, product.id)
-    request.session["viewed_products"] = viewed[:6]
-
-    # =============================
-    # ✅ SIZE GUIDE ROWS
-    # =============================
     size_guide_rows = []
+
     if size_guide and size_guide.content:
         for line in size_guide.content.splitlines():
             parts = line.split()
@@ -64,7 +53,7 @@ def product_detail(request, slug):
                 })
 
     # =============================
-    # ✅ WISHLIST
+    # WISHLIST
     # =============================
     is_wishlisted = False
     if request.user.is_authenticated:
@@ -74,43 +63,43 @@ def product_detail(request, slug):
         ).exists()
 
     # =============================
-    # ✅ IMAGES
+    # IMAGES
     # =============================
     images = product.images.all()
 
     # =============================
-    # ✅ VARIANTS
+    # VARIANTS (SIZE ONLY ✅)
     # =============================
-    variant_qs = ProductVariant.objects.filter(product=product, is_active=True)
+    variant_qs = (
+        ProductVariant.objects
+        .filter(product=product, is_active=True)
+        .order_by("position")
+    )
 
     variants = [
         {
             "id": v.id,
             "size": v.size,
-            "color": v.color,
-            "price": v.price,
-            "discount_price": v.discount_price,
             "stock": v.stock,
+            "in_stock": v.stock > 0,
         }
         for v in variant_qs
     ]
 
-    sizes = sorted({v["size"] for v in variants})
-
-    colors = (
-        ProductVariant.objects
-        .filter(product=product, is_active=True)
-        .values("color", "color_hex")
-        .distinct()
-    )
-
-    images_by_color = {
-        c["color"]: [img.image.url for img in images]
-        for c in colors
-    }
+    sizes = [v["size"] for v in variants]
 
     # =============================
-    # ✅ STOCK SCHEMA
+    # COLOR (FROM PRODUCT ONLY ✅)
+    # =============================
+    colors = [{
+        "color": product.color,
+        "color_hex": product.color_hex,
+    }]
+
+    show_colors = False  # Option A → single color always
+
+    # =============================
+    # STOCK SCHEMA
     # =============================
     in_stock = variant_qs.filter(stock__gt=0).exists()
     schema_availability = (
@@ -120,7 +109,7 @@ def product_detail(request, slug):
     )
 
     # =============================
-    # ✅ RELATED PRODUCTS
+    # RELATED PRODUCTS
     # =============================
     related_products = (
         Product.objects
@@ -129,18 +118,18 @@ def product_detail(request, slug):
     )
 
     # =============================
-    # ✅ CART COUNT
+    # CART COUNT
     # =============================
     cart = request.session.get("cart", {})
     cart_count = sum(item["quantity"] for item in cart.values())
 
     # =============================
-    # ✅ STORY SECTIONS
+    # STORY SECTIONS
     # =============================
     story_sections = product.story_sections.filter(is_active=True)
 
     # =============================
-    # ⭐ REVIEWS
+    # REVIEWS
     # =============================
     reviews = product.reviews.select_related("user").order_by("-created_at")
     average_rating = reviews.aggregate(avg=Avg("rating"))["avg"]
@@ -161,17 +150,7 @@ def product_detail(request, slug):
             review_form = ReviewForm()
 
     # =============================
-    # ✅ RECENTLY VIEWED (QUERYSET)
-    # =============================
-    viewed_ids = request.session.get("viewed_products", [])
-    recently_viewed_products = (
-        Product.objects
-        .filter(id__in=viewed_ids, is_active=True)
-        .exclude(id=product.id)
-    )
-
-    # =============================
-    # ✅ RENDER
+    # RENDER
     # =============================
     return render(request, "products/product_detail.html", {
         "product": product,
@@ -179,7 +158,7 @@ def product_detail(request, slug):
         "variants": variants,
         "sizes": sizes,
         "colors": colors,
-        "images_by_color": images_by_color,
+        "show_colors": show_colors,
         "related_products": related_products,
         "cart_count": cart_count,
         "story_sections": story_sections,
@@ -187,13 +166,13 @@ def product_detail(request, slug):
         "is_wishlisted": is_wishlisted,
         "size_guide": size_guide,
         "size_guide_rows": size_guide_rows,
-        "recently_viewed_products": recently_viewed_products,
         "reviews": reviews,
         "average_rating": average_rating,
         "can_review": can_review,
         "user_review": user_review,
         "review_form": review_form,
     })
+
 
 
 

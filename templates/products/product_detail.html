@@ -239,25 +239,28 @@
 
 
 
-        <!-- COLOR -->
-    <div class="mb-14">
+{% if show_colors %}
+<!-- COLOR -->
+<div class="mb-14">
     <p class="text-xs uppercase tracking-[0.3em] mb-4 text-gray-500">
         Color
     </p>
 
     <div class="flex gap-4">
-    {% for c in colors %}
-<button
-    data-color="{{ c.color }}"
-    data-hex="{{ c.color_hex }}"
-    onclick="selectColor('{{ c.color }}', this)"
-    class="color-btn w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center">
+        {% for c in colors %}
+        <button
+            data-color="{{ c.color }}"
+            data-hex="{{ c.color_hex }}"
+            onclick="selectColor('{{ c.color }}', this)"
+            class="color-btn w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center">
 
-    <span class="block w-6 h-6 rounded-full"></span>
-</button>
-{% endfor %}
+            <span class="block w-6 h-6 rounded-full"></span>
+        </button>
+        {% endfor %}
     </div>
 </div>
+{% endif %}
+
 
 
 
@@ -419,86 +422,23 @@
 
 <!-- DATA -->
 {{ variants|json_script:"variant-data" }}
-{{ images_by_color|json_script:"images-by-color" }}
 
 <script>
 
 const addToCartBtn = document.getElementById("addToCartBtn");
 
-function updateAddToCartState() {
-    if (selectedColor && selectedSize) {
-        addToCartBtn.disabled = false;
-        addToCartBtn.classList.remove("opacity-40", "cursor-not-allowed");
-        addToCartBtn.classList.add("hover:bg-gray-900");
-    } else {
-        addToCartBtn.disabled = true;
-        addToCartBtn.classList.add("opacity-40", "cursor-not-allowed");
-        addToCartBtn.classList.remove("hover:bg-gray-900");
-    }
-}
+
 
 
 /* ---------- DATA ---------- */
 const variants = JSON.parse(
     document.getElementById("variant-data").textContent
 );
-const imagesByColor = JSON.parse(
-    document.getElementById("images-by-color").textContent
-);
-
-let selectedColor = null;
 let selectedSize = null;
 
 const priceEl = document.getElementById("price");
 const mainImage = document.getElementById("mainImage");
 
-
-/* ---------- APPLY COLOR HEX (PASTE HERE) ---------- */
-document.querySelectorAll(".color-btn").forEach(btn => {
-    const hex = btn.dataset.hex;
-    if (hex) {
-        btn.querySelector("span").style.backgroundColor = hex;
-    }
-});
-
-
-
-/* ---------- COLOR ---------- */
-function selectColor(color, btn) {
-    selectedColor = color;
-    selectedSize = null;
-
-    document.querySelectorAll(".color-btn").forEach(b => {
-        b.classList.remove("border-black", "ring-2", "ring-black", "scale-110");
-    });
-    btn.classList.add("border-black", "ring-2", "ring-black", "scale-110");
-
-    document.querySelectorAll(".size-btn").forEach(b => {
-        b.classList.remove("opacity-30", "pointer-events-none");
-    });
-
-    document.querySelectorAll(".size-btn").forEach(b => {
-        const size = b.dataset.size;
-        const exists = variants.find(
-            v => v.color === color && v.size === size && v.stock > 0
-        );
-        if (!exists) {
-            b.classList.add("opacity-30", "pointer-events-none");
-        }
-    });
-
-    if (imagesByColor[color]?.length) {
-        mainImage.style.opacity = 0;
-        setTimeout(() => {
-            mainImage.src = imagesByColor[color][0];
-            mainImage.style.opacity = 1;
-        }, 150);
-    }
-
-    const first = variants.find(v => v.color === color);
-    if (first) updatePrice(first);
-    updateAddToCartState();
-}
 
 /* SIZE */
 function selectSize(size, btn) {
@@ -509,26 +449,11 @@ function selectSize(size, btn) {
     });
 
     btn.classList.add("bg-black", "text-white", "border-black", "scale-105");
-
-    const v = variants.find(x => x.color === selectedColor && x.size === size);
-    if (v) updatePrice(v);
     updateAddToCartState();
 }
 
 
 
-/* PRICE */
-function updatePrice(v) {
-    if (v.discount_price) {
-        priceEl.innerHTML =
-            `₹ ${v.discount_price}
-             <span class="text-sm text-gray-400 line-through ml-2">
-                ₹ ${v.price}
-             </span>`;
-    } else {
-        priceEl.innerText = `₹ ${v.price}`;
-    }
-}
 
 /* THUMBNAILS */
 document.querySelectorAll(".thumb-img").forEach(img => {
@@ -542,16 +467,30 @@ document.querySelectorAll(".thumb-img").forEach(img => {
 });
 
 /* ADD TO CART */
-   
+   function updateAddToCartState() {
+    if (selectedSize) {
+        addToCartBtn.disabled = false;
+        addToCartBtn.classList.remove("opacity-40", "cursor-not-allowed");
+        addToCartBtn.classList.add("hover:bg-gray-900");
+    } else {
+        addToCartBtn.disabled = true;
+        addToCartBtn.classList.add("opacity-40", "cursor-not-allowed");
+        addToCartBtn.classList.remove("hover:bg-gray-900");
+    }
+}
+
+
 function addToCart() {
     const variant = variants.find(
-        v => v.color === selectedColor && v.size === selectedSize
+        v => v.size === selectedSize && v.stock > 0
     );
 
     if (!variant) {
         alert("Variant not available");
         return;
     }
+
+    console.log("SENT VARIANT:", variant); // ✅ DEBUG (correct place)
 
     fetch("{% url 'add_to_cart' %}", {
         method: "POST",
@@ -566,32 +505,22 @@ function addToCart() {
             quantity: 1
         })
     })
-    .then(res => {
-        // 🔥 CRITICAL DEBUG
-        console.log("STATUS:", res.status);
-        return res.json();
-    })
+    .then(res => res.json())
     .then(data => {
-        console.log("DATA:", data);
+        console.log("RESPONSE:", data);
 
         if (data.success) {
             const badge = document.getElementById("cartBadge");
             badge.innerText = data.cart_count;
             badge.classList.remove("hidden");
-
-            showCartToast(); // ✅ NOW THIS WILL RUN
+            showCartToast();
         }
     })
-    .catch(err => {
-        console.error("Add to cart failed:", err);
-    });
+    .catch(err => console.error(err));
 }
 
-/* AUTO SELECT FIRST COLOR */
-document.addEventListener("DOMContentLoaded", () => {
-    const firstColor = document.querySelector(".color-btn");
-    if (firstColor) firstColor.click();
-});
+
+
 
 /* ---------- IMAGE ZOOM ---------- */
 const zoomContainer = document.getElementById("zoomContainer");
@@ -608,6 +537,10 @@ zoomContainer.addEventListener("mousemove", (e) => {
 zoomContainer.addEventListener("mouseleave", () => {
     mainImage.style.transformOrigin = "center";
     mainImage.style.transform = "scale(1)";
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    updateAddToCartState();
 });
 </script>
 
@@ -641,6 +574,8 @@ zoomContainer.addEventListener("mouseleave", () => {
 
 
 <script>
+
+
 const wishlistBtn = document.getElementById("wishlistBtn");
 const heart = wishlistBtn.querySelector("svg");
 

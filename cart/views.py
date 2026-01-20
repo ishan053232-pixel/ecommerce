@@ -13,6 +13,10 @@ def add_to_cart(request):
         return JsonResponse({"success": False}, status=405)
 
     variant_id = request.POST.get("variant_id")
+    if not variant_id:
+        return JsonResponse({"success": False, "error": "Missing variant_id"}, status=400)
+
+    variant_id = str(variant_id)
     quantity = int(request.POST.get("quantity", 1))
 
     variant = get_object_or_404(ProductVariant, id=variant_id)
@@ -29,9 +33,8 @@ def add_to_cart(request):
         cart[variant_id] = {
             "variant_id": variant.id,
             "product": variant.product.name,
-            "price": float(variant.discount_price or variant.price),
+            "price": float(variant.product.get_display_price()),
             "size": variant.size,
-            "color": variant.color,
             "quantity": quantity,
             "image": image,
         }
@@ -43,6 +46,7 @@ def add_to_cart(request):
         "success": True,
         "cart_count": sum(item["quantity"] for item in cart.values())
     })
+
 
 
 # =========================
@@ -141,7 +145,6 @@ def mini_cart(request):
             "product": item["product"],
             "price": item["price"],
             "quantity": item["quantity"],
-            "color": item["color"],
             "size": item["size"],
             "image": item["image"],
         })

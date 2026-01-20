@@ -45,13 +45,11 @@ class ProductVariantInline(SortableInlineAdminMixin, admin.TabularInline):
     extra = 1
     fields = (
         "size",
-        "color",
-        "color_hex",
-        "price",
-        "discount_price",
         "stock",
         "is_active",
     )
+
+    
 
 
 # ==========================
@@ -123,13 +121,9 @@ class ProductVariantAdmin(SortableAdminMixin, admin.ModelAdmin):
     list_display = (
         "product",
         "size",
-        "color",
         "stock",
         "is_active",
-        "price",
-        "discount_price",
     )
-    list_filter = ("is_active", "size", "color")
     search_fields = ("product__name",)
 
 

@@ -59,6 +59,16 @@ class Product(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
     description = models.TextField()
+    
+     # ✅ COLOR (SINGLE SOURCE OF TRUTH)
+    color = models.CharField(
+        max_length=20,
+        help_text="Example: Black, White, Navy"
+    )
+    color_hex = models.CharField(
+        max_length=7,
+        help_text="Example: #000000"
+    )
 
     # ======================
     # STORY SECTION (ADMIN)
@@ -135,10 +145,10 @@ class Product(models.Model):
 # ==========================
 class ProductVariant(models.Model):
     SIZE_CHOICES = [
-        ('S', 'Small'),
-        ('M', 'Medium'),
-        ('L', 'Large'),
-        ('XL', 'Extra Large'),
+        ("S", "Small"),
+        ("M", "Medium"),
+        ("L", "Large"),
+        ("XL", "Extra Large"),
     ]
 
     product = models.ForeignKey(
@@ -146,32 +156,17 @@ class ProductVariant(models.Model):
         on_delete=models.CASCADE,
         related_name="variants"
     )
-
     size = models.CharField(max_length=5, choices=SIZE_CHOICES)
-
-    color = models.CharField(
-        max_length=15,
-        help_text="Example: Black, Olive Green, Wine Red"
-    )
-
-    color_hex = models.CharField(
-        max_length=7,
-        blank=True,
-        null=True,
-        help_text="Example: #000000"
-    )
-
-    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    discount_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     stock = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
     position = models.PositiveIntegerField(default=0)
 
     class Meta:
         ordering = ["position"]
+        unique_together = ("product", "size")
 
     def __str__(self):
-        return f"{self.product.name} - {self.size} - {self.color}"
+        return f"{self.product.name} - {self.size}"
 
 
 # ==========================
