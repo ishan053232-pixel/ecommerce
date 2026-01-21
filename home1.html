@@ -111,11 +111,12 @@
         <div class="max-w-[1400px] mx-auto px-6 md:px-10 py-6 grid grid-cols-3 items-center text-xs uppercase tracking-[0.3em]">
 
             <!-- LEFT - Back Button -->
-       <a href="javascript:history.back()"
-       class="text-gray-400 hover:text-black transition justify-self-start">
-      ← Back
-    </a>
-
+            <a href="javascript:history.back()" class="text-gray-400 hover:text-black transition justify-self-start flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                <span class="hidden md:inline">Back</span>
+            </a>
 
             <!-- CENTER - Brand -->
             <a href="/" class="justify-self-center font-light text-gray-900 hover:text-gray-600 transition">
@@ -253,17 +254,15 @@
                 <div class="flex flex-wrap gap-3">
                     {% for size in sizes %}
                     <button
-    data-size="{{ size }}"
-    onclick="selectSize('{{ size }}', this)"
-    class="size-btn w-16 h-16 md:w-18 md:h-18
-           text-base md:text-lg font-semibold
-           border-2 border-gray-300 rounded-xl
-           flex items-center justify-center
-           hover:border-black
-           focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2">
-    {{ size }}
-</button>
-
+                        data-size="{{ size }}"
+                        onclick="selectSize('{{ size }}', this)"
+                        class="size-btn w-14 h-14 text-sm uppercase font-medium
+                               border-2 border-gray-300 rounded-lg
+                               flex items-center justify-center
+                               hover:border-black
+                               focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2">
+                        {{ size }}
+                    </button>
                     {% endfor %}
                 </div>
             </div>
@@ -724,5 +723,708 @@ document.querySelectorAll(".color-dot").forEach(el => {
         document.getElementById("sizeGuideModal").classList.toggle("flex");
     }
 </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="csrf-token" content="{{ csrf_token }}">
+
+    <title>
+        {% if product.meta_title %}
+            {{ product.meta_title }}
+        {% else %}
+            {{ product.name }} | The Fashion Flare
+        {% endif %}
+    </title>
+
+    {% if product.meta_description %}
+    <meta name="description" content="{{ product.meta_description }}">
+    {% endif %}
+
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    </head>
+
+<body class="bg-white text-gray-900 antialiased tracking-wide">
+
+<!-- HEADER -->
+<header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-200">
+  <div class="max-w-[1400px] mx-auto px-10 py-6
+              grid grid-cols-3 items-center
+              text-xs uppercase tracking-[0.3em]">
+
+    <!-- LEFT -->
+    <a href="javascript:history.back()"
+       class="text-gray-400 hover:text-black transition justify-self-start">
+      ← Back
+    </a>
+
+    <!-- CENTER BRAND -->
+    <a href="/"
+       class="justify-self-center font-light text-gray-900">
+      The Fashion Flare
+    </a>
+
+    <!-- RIGHT ICONS -->
+    <div class="flex items-center gap-6 justify-self-end text-gray-600">
+
+      <!-- Wishlist -->
+<button
+  id="wishlistBtn"
+  data-product="{{ product.id }}"
+  class="group relative p-2">
+
+  <svg
+    class="w-5 h-5 transition-all duration-200
+           {% if is_wishlisted %}
+             fill-black stroke-black
+           {% else %}
+             fill-none stroke-gray-400
+           {% endif %}
+           group-hover:stroke-black"
+    viewBox="0 0 24 24"
+    stroke-width="1.6"
+    stroke="currentColor"
+    fill="currentColor">
+
+    <path
+      d="M12 21s-6.716-4.35-9.428-7.062C-1.9 9.608 1.42 3 6.5 3
+         9.24 3 12 5.272 12 5.272S14.76 3 17.5 3
+         C22.58 3 25.9 9.608 21.428 13.938
+         18.716 16.65 12 21 12 21z" />
+  </svg>
+
+</button>
+
+
+      <!-- Cart -->
+      <a href="{% url 'cart_detail' %}"
+         class="relative hover:text-black transition">
+
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M3 3h2l.4 2M7 13h10l4-8H5.4
+                   M7 13L5.4 5
+                   M7 13l-1.3 5h11.6
+                   M16 21a1 1 0 100-2
+                   1 1 0 000 2
+                   zm-8 0a1 1 0 100-2
+                   1 1 0 000 2z"/>
+        </svg>
+
+        <!-- Badge -->
+        <span id="cartBadge"
+              class="{% if cart_count == 0 %}hidden{% endif %}
+                     absolute -top-2 -right-2
+                     bg-black text-white text-[10px]
+                     px-1.5 py-0.5 rounded-full">
+          {{ cart_count }}
+        </span>
+      </a>
+
+    </div>
+  </div>
+</header>
+
+
+<!-- MAIN -->
+<section class="max-w-[1400px] mx-auto px-10 py-24
+                grid grid-cols-1 lg:grid-cols-2 gap-24">
+
+    <!-- IMAGE GALLERY -->
+    <div class="flex justify-center">
+        <div class="w-full max-w-[520px]">
+
+            <div
+    id="zoomContainer"
+    class="w-full aspect-[3/4] bg-[#f7f7f7]
+           flex items-center justify-center
+           overflow-hidden relative cursor-zoom-in">
+                <img
+    id="mainImage"
+    src="{{ images.first.image.url }}"
+    class="w-full h-full object-contain
+           transition-transform duration-200 ease-out">
+            </div>
+
+            <div class="flex gap-4 mt-8 justify-center">
+                {% for img in images %}
+                <img src="{{ img.image.url }}"
+                     class="thumb-img w-16 h-20 object-cover cursor-pointer
+                            opacity-60 hover:opacity-100 transition
+                            border border-transparent hover:border-gray-300">
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- INFO -->
+    <div class="max-w-md sticky top-28">
+
+        <h1 class="text-3xl font-light mb-3">
+            {{ product.name }}
+        </h1>
+
+        <p id="price" class="text-xl text-gray-800 mb-8">
+            ₹ {{ product.get_display_price }}
+        </p>
+
+        <p class="text-[15px] text-gray-600 leading-7 mb-14">
+            {{ product.description }}
+        </p>
+
+        <!-- SIZE -->
+    <!-- SIZE -->
+<div class="mb-12">
+
+  <!-- Header row -->
+  <div class="flex items-center justify-between mb-4">
+    <p class="text-xs uppercase tracking-[0.3em] text-gray-500">
+      Size
+    </p>
+
+    {% if size_guide and size_guide.is_active %}
+    <button
+      onclick="toggleSizeGuide()"
+      class="text-[11px] uppercase tracking-widest text-gray-400 hover:text-black transition"
+    >
+      Size Guide
+    </button>
+    {% endif %}
+  </div>
+
+  <!-- Size buttons -->
+  <div class="flex gap-3">
+    {% for size in sizes %}
+    <button
+      data-size="{{ size }}"
+      onclick="selectSize('{{ size }}', this)"
+      class="size-btn w-12 h-12 text-xs uppercase
+             border border-gray-300
+             flex items-center justify-center
+             transition-all duration-200
+             hover:border-black">
+      {{ size }}
+    </button>
+    {% endfor %}
+  </div>
+
+</div>
+
+
+
+<div id="sizeGuideModal"
+     class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+
+  <div class="bg-white w-[92%] max-w-xl p-10 relative rounded-xl">
+
+    <!-- Close -->
+    <button onclick="toggleSizeGuide()"
+            class="absolute top-6 right-6 text-gray-400 hover:text-black text-xl">
+      &times;
+    </button>
+
+    <!-- Title -->
+    <h3 class="text-lg font-light tracking-wide mb-6">
+      {{ size_guide.title }}
+    </h3>
+
+    <!-- Content -->
+   {% if size_guide_rows %}
+<div class="overflow-hidden border border-gray-200 rounded-lg">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-gray-500 uppercase tracking-widest text-[11px]">
+      <tr>
+        <th class="px-4 py-3 text-left">Size</th>
+        <th class="px-4 py-3 text-left">Chest (in)</th>
+        <th class="px-4 py-3 text-left">Length (in)</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y">
+      {% for row in size_guide_rows %}
+      <tr class="hover:bg-gray-50 transition">
+        <td class="px-4 py-3 font-medium">{{ row.size }}</td>
+        <td class="px-4 py-3 text-gray-600">{{ row.chest }}</td>
+        <td class="px-4 py-3 text-gray-600">{{ row.length }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<p class="mt-4 text-xs text-gray-400">
+  Measurements may vary by 1–2 cm.
+</p>
+{% endif %}
+
+
+
+  </div>
+</div>
+
+
+
+{% if show_colors %}
+<!-- COLOR -->
+<div class="mb-14">
+    <p class="text-xs uppercase tracking-[0.3em] mb-4 text-gray-500">
+        Color
+    </p>
+
+    <div class="flex gap-4">
+        {% for c in colors %}
+        <button
+            data-color="{{ c.color }}"
+            data-hex="{{ c.color_hex }}"
+            onclick="selectColor('{{ c.color }}', this)"
+            class="color-btn w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center">
+
+            <span class="block w-6 h-6 rounded-full"></span>
+        </button>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+
+
+
+        <!-- ADD TO CART (HOME STYLE) -->
+        <button
+    id="addToCartBtn"
+    onclick="addToCart()"
+    disabled
+    class="flex items-center justify-center gap-3
+           w-full py-4
+           bg-black text-white
+           text-xs uppercase tracking-[0.3em]
+           opacity-40 cursor-not-allowed
+           transition duration-200">
+
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 3h2l.4 2M7 13h10l4-8H5.4
+                 M7 13l-1.3 5h11.6
+                 M16 21a1 1 0 100-2
+                 1 1 0 000 2
+                 zm-8 0a1 1 0 100-2
+                 1 1 0 000 2z" />
+    </svg>
+
+    <span>Add to cart</span>
+</button>
+
+
+        <!-- TRUST INFO -->
+        <div class="mt-10 pt-6 border-t text-sm text-gray-600 space-y-2">
+            <p>✔ Free delivery in 5–7 days</p>
+            <p>✔ Easy 7-day return</p>
+            <p>✔ Premium quality fabric</p>
+        </div>
+
+    </div>
+</section>
+
+<!-- STORY SECTIONS -->
+
+{% if story_sections %}
+<section class="bg-[#fafafa] py-28">
+  <div class="max-w-[1400px] mx-auto px-10 space-y-24">
+
+    {% for section in story_sections %}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+
+      <div>
+        <h2 class="text-2xl font-light mb-6">
+            {{ section.title }}
+        </h2>
+        <p class="text-gray-600 leading-8 max-w-md">
+            {{ section.description }}
+        </p>
+      </div>
+
+      <div class="aspect-[4/5] bg-gray-200 overflow-hidden">
+        <img src="{{ images.first.image.url }}"
+             class="w-full h-full object-cover">
+      </div>
+
+    </div>
+    {% endfor %}
+
+  </div>
+</section>
+{% endif %}
+
+{% if user.is_authenticated %}
+
+  {% if can_review %}
+    <form id="reviewForm" class="mt-6 space-y-3">
+      {% csrf_token %}
+
+      <!-- ⭐ STAR RATING -->
+      <input type="hidden" name="rating" id="ratingInput" required>
+
+      <div id="starRating" class="flex gap-1 cursor-pointer">
+        {% for i in "12345" %}
+          <svg data-value="{{ forloop.counter }}"
+               class="star w-6 h-6 text-gray-300 hover:text-yellow-400 transition"
+               fill="currentColor"
+               viewBox="0 0 20 20">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.97a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.385 2.46a1 1 0 00-.364 1.118l1.286 3.97c.3.921-.755 1.688-1.54 1.118l-3.385-2.46a1 1 0 00-1.175 0l-3.385 2.46c-.785.57-1.84-.197-1.54-1.118l1.286-3.97a1 1 0 00-.364-1.118L2.05 9.397c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.286-3.97z"/>
+          </svg>
+        {% endfor %}
+      </div>
+
+      <!-- ✍ COMMENT -->
+      <textarea name="comment"
+                rows="4"
+                class="w-full border rounded-md p-3 text-sm"
+                placeholder="Write your review (optional)"></textarea>
+
+      <button type="submit"
+              class="bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800">
+        Submit review
+      </button>
+    </form>
+
+  {% elif user_review %}
+    <p class="text-green-600 font-medium">
+      You already reviewed this product.
+    </p>
+
+  {% else %}
+    <p class="text-gray-500">
+      Only customers who purchased this product can leave a review.
+    </p>
+  {% endif %}
+
+{% else %}
+  <p>
+    <a href="{% url 'login' %}" class="underline">Login</a> to write a review.
+  </p>
+{% endif %}
+
+
+
+<!-- RELATED PRODUCTS -->
+<section class="max-w-[1400px] mx-auto px-10 py-28">
+
+  <h2 class="text-sm uppercase tracking-[0.3em] text-gray-500 mb-12">
+    You may also like
+  </h2>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-10">
+
+    {% for p in related_products %}
+<div class="group">
+    <a href="{% url 'product_detail' p.slug %}">
+        {% if p.images.first %}
+            <img
+                src="{{ p.images.first.image.url }}"
+                class="w-full aspect-[3/4] object-cover
+                       group-hover:scale-105 transition duration-500"
+            >
+        {% else %}
+            <div class="w-full aspect-[3/4] bg-gray-100
+                        flex items-center justify-center text-xs text-gray-400">
+                No image
+            </div>
+        {% endif %}
+
+        <div class="mt-4 text-center">
+            <p class="text-sm font-light">{{ p.name }}</p>
+            <p class="text-sm text-gray-500 mt-1">
+                ₹ {{ p.get_display_price }}
+            </p>
+        </div>
+    </a>
+</div>
+{% endfor %}
+
+  </div>
+</section>
+
+
+<!-- DATA -->
+{{ variants|json_script:"variant-data" }}
+
+<script>
+
+const addToCartBtn = document.getElementById("addToCartBtn");
+
+
+
+
+/* ---------- DATA ---------- */
+const variants = JSON.parse(
+    document.getElementById("variant-data").textContent
+);
+let selectedSize = null;
+
+const priceEl = document.getElementById("price");
+const mainImage = document.getElementById("mainImage");
+
+
+/* SIZE */
+function selectSize(size, btn) {
+    selectedSize = size;
+
+    document.querySelectorAll(".size-btn").forEach(b => {
+        b.classList.remove("bg-black", "text-white", "border-black", "scale-105");
+    });
+
+    btn.classList.add("bg-black", "text-white", "border-black", "scale-105");
+    updateAddToCartState();
+}
+
+
+
+
+/* THUMBNAILS */
+document.querySelectorAll(".thumb-img").forEach(img => {
+    img.addEventListener("click", () => {
+        mainImage.style.opacity = 0;
+        setTimeout(() => {
+            mainImage.src = img.src;
+            mainImage.style.opacity = 1;
+        }, 150);
+    });
+});
+
+/* ADD TO CART */
+   function updateAddToCartState() {
+    if (selectedSize) {
+        addToCartBtn.disabled = false;
+        addToCartBtn.classList.remove("opacity-40", "cursor-not-allowed");
+        addToCartBtn.classList.add("hover:bg-gray-900");
+    } else {
+        addToCartBtn.disabled = true;
+        addToCartBtn.classList.add("opacity-40", "cursor-not-allowed");
+        addToCartBtn.classList.remove("hover:bg-gray-900");
+    }
+}
+
+
+function addToCart() {
+    const variant = variants.find(
+        v => v.size === selectedSize && v.stock > 0
+    );
+
+    if (!variant) {
+        alert("Variant not available");
+        return;
+    }
+
+    console.log("SENT VARIANT:", variant); // ✅ DEBUG (correct place)
+
+    fetch("{% url 'add_to_cart' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": document
+                .querySelector('meta[name="csrf-token"]')
+                .content
+        },
+        body: new URLSearchParams({
+            variant_id: variant.id,
+            quantity: 1
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("RESPONSE:", data);
+
+        if (data.success) {
+            const badge = document.getElementById("cartBadge");
+            badge.innerText = data.cart_count;
+            badge.classList.remove("hidden");
+            showCartToast();
+        }
+    })
+    .catch(err => console.error(err));
+}
+
+
+
+
+/* ---------- IMAGE ZOOM ---------- */
+const zoomContainer = document.getElementById("zoomContainer");
+
+zoomContainer.addEventListener("mousemove", (e) => {
+    const rect = zoomContainer.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    mainImage.style.transformOrigin = `${x}% ${y}%`;
+    mainImage.style.transform = "scale(1.8)";
+});
+
+zoomContainer.addEventListener("mouseleave", () => {
+    mainImage.style.transformOrigin = "center";
+    mainImage.style.transform = "scale(1)";
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    updateAddToCartState();
+});
+</script>
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "{{ product.name|escapejs }}",
+  "image": [
+    "{{ images.first.image.url }}"
+  ],
+  "description": "{{ product.description|striptags|escapejs }}",
+  "sku": "{{ product.slug }}",
+  "brand": {
+    "@type": "Brand",
+    "name": "The Fashion Flare"
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ request.build_absolute_uri }}",
+    "priceCurrency": "INR",
+    "price": "{{ product.get_display_price }}",
+    "availability": "{{ schema_availability }}",
+    "itemCondition": "https://schema.org/NewCondition"
+  }
+}
+</script>
+
+
+<script>
+
+
+const wishlistBtn = document.getElementById("wishlistBtn");
+const heart = wishlistBtn.querySelector("svg");
+
+wishlistBtn.addEventListener("click", () => {
+  fetch(`/accounts/wishlist/toggle/${wishlistBtn.dataset.product}/`, {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": "{{ csrf_token }}",
+      "X-Requested-With": "XMLHttpRequest"
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.added) {
+      heart.classList.remove("fill-none", "stroke-gray-400");
+      heart.classList.add("fill-rose-500", "stroke-rose-500");
+    } else {
+      heart.classList.remove("fill-rose-500", "stroke-rose-500");
+      heart.classList.add("fill-none", "stroke-gray-400");
+    }
+  });
+});
+</script>
+
+<script>
+  // ⭐ STAR CLICK HANDLING
+  const stars = document.querySelectorAll(".star");
+  const ratingInput = document.getElementById("ratingInput");
+
+  stars.forEach(star => {
+    star.addEventListener("click", () => {
+      const value = star.dataset.value;
+      ratingInput.value = value;
+
+      stars.forEach(s => {
+        s.classList.toggle("text-yellow-400", s.dataset.value <= value);
+        s.classList.toggle("text-gray-300", s.dataset.value > value);
+      });
+    });
+  });
+
+  // ⚡ AJAX SUBMIT
+  const form = document.getElementById("reviewForm");
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      fetch("{% url 'submit_review_ajax' product.slug %}", {
+        method: "POST",
+        body: new FormData(form),
+        headers: {
+          "X-Requested-With": "XMLHttpRequest"
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById("reviewsContainer").innerHTML = data.html;
+          form.remove(); // remove form after success
+        } else {
+          alert(data.error || "Something went wrong");
+        }
+      });
+    });
+  }
+</script>
+
+<script>
+function toggleSizeGuide() {
+  const modal = document.getElementById("sizeGuideModal");
+  modal.classList.toggle("hidden");
+  modal.classList.toggle("flex");
+}
+</script>
+
+<!-- ADD TO CART TOAST -->
+<div id="cartToast"
+     class="fixed bottom-6 right-6 z-[99999]
+            bg-black text-white text-sm
+            px-5 py-4 rounded-lg shadow-xl
+            flex items-center gap-4
+            opacity-0 translate-y-4
+            pointer-events-none
+            transition-all duration-300 ease-out">
+
+    <span>✔ Added to cart</span>
+
+    <a href="{% url 'cart_detail' %}"
+       class="underline text-xs ml-2">
+        View cart
+    </a>
+</div>
+
+
+
+<script>
+function showCartToast() {
+    const toast = document.getElementById("cartToast");
+
+    toast.style.display = "flex";
+
+    setTimeout(() => {
+        toast.style.display = "none";
+    }, 2500);
+}
+</script>
+
+
+
 </body>
 </html>

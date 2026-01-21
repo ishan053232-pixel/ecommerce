@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import HomeVideo
 from django.db.models import Case, When, BooleanField
+from django.core.paginator import Paginator
 
 def home(request):
     category_slug = request.GET.get("category", "all")
@@ -16,8 +17,7 @@ def home(request):
 
     categories = Category.objects.filter(is_active=True)
 
-    # ✅ PRODUCTS with TRENDING annotation
-    products = (
+    products_qs = (
         Product.objects
         .filter(is_active=True)
         .annotate(
@@ -30,41 +30,50 @@ def home(request):
         .order_by("-is_trending", "-views")
     )
 
-    # Filter by category
     if category_slug != "all":
-        products = products.filter(subcategory__category__slug=category_slug)
+        products_qs = products_qs.filter(subcategory__category__slug=category_slug)
 
-    # Filter by sub-category
     if sub_slug:
-        products = products.filter(subcategory__slug=sub_slug)
+        products_qs = products_qs.filter(subcategory__slug=sub_slug)
 
-    # Search
     if query:
-        products = products.filter(name__icontains=query)
+        products_qs = products_qs.filter(name__icontains=query)
 
-    hero_slides = HeroSlide.objects.filter(
-        is_active=True,
-        category__in=["all", category_slug]
-    ).order_by("order")
+    # ✅ PAGINATION
+    paginator = Paginator(products_qs, 12)
+    page_number = request.GET.get("page")
+    products = paginator.get_page(page_number)
 
-    home_video = HomeVideo.objects.filter(is_active=True).first()
+    # ✅ HERO SLIDES (strict)
+    if category_slug == "all":
+        hero_slides = HeroSlide.objects.filter(
+            is_active=True,
+            category="all"
+        ).order_by("order")
+    else:
+        hero_slides = HeroSlide.objects.filter(
+            is_active=True,
+            category=category_slug
+        ).order_by("order")
+
+    home_video = (
+        HomeVideo.objects.filter(is_active=True).first()
+        if category_slug == "all"
+        else None
+    )
 
     cart = request.session.get("cart", {})
-    cart_count = sum(item["quantity"] for item in cart.values()) if cart else 0
+    cart_count = sum(item["quantity"] for item in cart.values())
 
-    return render(
-        request,
-        "home.html",
-        {
-            "categories": categories,
-            "products": products,
-            "hero_slides": hero_slides,
-            "home_video": home_video,
-            "cart_count": cart_count,
-            "active_category": category_slug,
-            "active_sub": sub_slug,
-        }
-    )
+    return render(request, "home.html", {
+        "categories": categories,
+        "products": products,
+        "hero_slides": hero_slides,
+        "home_video": home_video,
+        "cart_count": cart_count,
+        "active_category": category_slug,
+        "active_sub": sub_slug,
+    })
 
 
 
