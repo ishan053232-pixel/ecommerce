@@ -113,6 +113,11 @@ class Product(models.Model):
 
     def get_display_price(self):
         return self.discount_price if self.discount_price else self.price
+    
+    def discount_percentage(self):
+        if self.discount_price and self.price:
+            return round(((self.price - self.discount_price) / self.price) * 100)
+        return 0
 
     @property
     def average_rating(self):
@@ -120,6 +125,27 @@ class Product(models.Model):
         Returns average rating or None
         """
         return self.reviews.aggregate(avg=Avg("rating"))["avg"]
+    
+    def generate_ai_content(self):
+        # Auto description
+        if not self.description:
+            self.description = f"{self.name} is crafted with premium fabric, designed for comfort and modern style. Perfect for everyday wear."
+
+        # Auto style title
+        if not self.style_title:
+            self.style_title = "Designed for everyday comfort"
+
+        # Auto style description
+        if not self.style_description:
+            self.style_description = f"The {self.name} combines premium quality with a modern fit, making it ideal for casual and streetwear fashion."
+
+        # Auto SEO title
+        if not self.meta_title:
+            self.meta_title = f"{self.name} | The Fashion Flare"
+
+        # Auto SEO description
+        if not self.meta_description:
+            self.meta_description = f"Buy {self.name} at The Fashion Flare. Premium quality, modern design, and best price available."
     
       # ======================
     # TRENDING / NEW
@@ -265,3 +291,7 @@ class ProductSizeGuide(models.Model):
 
     def __str__(self):
         return f"Size Guide – {self.product.name}"
+
+
+
+    

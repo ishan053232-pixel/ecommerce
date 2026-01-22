@@ -15,7 +15,8 @@ from .models import (
     ProductStorySection,
 )
 from .models import ProductSizeGuide
-
+from django.shortcuts import redirect,get_object_or_404
+from django.urls import path
 
 
 
@@ -62,7 +63,7 @@ class ProductStoryInline(SortableInlineAdminMixin, admin.StackedInline):
 
 
 # ==========================
-# PRODUCT ADMIN (SINGLE SOURCE OF TRUTH)
+# PRODUCT ADMIN (AI BUTTON ENABLED)
 # ==========================
 @admin.register(Product)
 class ProductAdmin(SortableAdminBase, admin.ModelAdmin):
@@ -73,23 +74,34 @@ class ProductAdmin(SortableAdminBase, admin.ModelAdmin):
     inlines = [
         ProductImageInline,
         ProductVariantInline,
-        ProductStoryInline,  # ✅ story sections here
+        ProductStoryInline,
     ]
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "<int:object_id>/generate-ai/",
+                self.admin_site.admin_view(self.generate_ai_content),
+                name="product-generate-ai",
+            ),
+        ]
+        return custom_urls + urls
+
+    def generate_ai_content(self, request, object_id):
+        product = get_object_or_404(Product, id=object_id)
+        product.generate_ai_content()
+        product.save()
+        self.message_user(request, "✅ AI content generated successfully!")
+        return redirect(f"../../{object_id}/change/")
 
     def stock_status(self, obj):
         total_stock = sum(v.stock for v in obj.variants.filter(is_active=True))
         if total_stock == 0:
-            return format_html(
-                '<span style="color:red;font-weight:bold;">OUT OF STOCK</span>'
-            )
+            return format_html('<span style="color:red;font-weight:bold;">OUT OF STOCK</span>')
         elif total_stock < 10:
-            return format_html(
-                '<span style="color:orange;font-weight:bold;">LOW ({})</span>',
-                total_stock
-            )
-        return format_html(
-            '<span style="color:green;font-weight:bold;">IN STOCK</span>'
-        )
+            return format_html('<span style="color:orange;font-weight:bold;">LOW ({})</span>', total_stock)
+        return format_html('<span style="color:green;font-weight:bold;">IN STOCK</span>')
 
     stock_status.short_description = "Stock"
 
