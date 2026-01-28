@@ -9,6 +9,10 @@ from django.contrib import messages
 from .models import HomeVideo
 from django.db.models import Case, When, BooleanField
 from django.core.paginator import Paginator
+from .models import HomeVideo
+
+
+
 
 def home(request):
     category_slug = request.GET.get("category", "all")
@@ -17,6 +21,7 @@ def home(request):
 
     categories = Category.objects.filter(is_active=True)
 
+    # ✅ PRODUCTS + TRENDING BADGE LOGIC
     products_qs = (
         Product.objects
         .filter(is_active=True)
@@ -39,28 +44,38 @@ def home(request):
     if query:
         products_qs = products_qs.filter(name__icontains=query)
 
-    # ✅ PAGINATION
     paginator = Paginator(products_qs, 12)
     page_number = request.GET.get("page")
     products = paginator.get_page(page_number)
 
-    # ✅ HERO SLIDES (strict)
+    # ✅ HERO IMAGES
     if category_slug == "all":
-        hero_slides = HeroSlide.objects.filter(
-            is_active=True,
-            category="all"
-        ).order_by("order")
+        hero_slides = HeroSlide.objects.filter(is_active=True, category="all").order_by("order")
     else:
-        hero_slides = HeroSlide.objects.filter(
-            is_active=True,
-            category=category_slug
-        ).order_by("order")
+        hero_slides = HeroSlide.objects.filter(is_active=True, category=category_slug).order_by("order")
 
-    home_video = (
-        HomeVideo.objects.filter(is_active=True).first()
-        if category_slug == "all"
-        else None
-    )
+    # ✅ HERO VIDEOS (only on all page)
+    hero_videos = HomeVideo.objects.filter(is_active=True) if category_slug == "all" else HomeVideo.objects.none()
+
+    # ✅ MERGE IMAGES + VIDEOS INTO ONE SLIDER
+    hero_items = []
+
+    for slide in hero_slides:
+        hero_items.append({
+            "type": "image",
+            "image": slide.image.url,
+            "title": slide.title,
+            "tag": slide.tag,
+            "description": slide.description,
+        })
+
+    for video in hero_videos:
+        hero_items.append({
+            "type": "video",
+            "video": video.video.url,
+            "title": video.title,
+            "subtitle": video.subtitle,
+        })
 
     cart = request.session.get("cart", {})
     cart_count = sum(item["quantity"] for item in cart.values())
@@ -68,12 +83,12 @@ def home(request):
     return render(request, "home.html", {
         "categories": categories,
         "products": products,
-        "hero_slides": hero_slides,
-        "home_video": home_video,
+        "hero_items": hero_items,   # ✅ IMPORTANT
         "cart_count": cart_count,
         "active_category": category_slug,
         "active_sub": sub_slug,
     })
+
 
 
 
