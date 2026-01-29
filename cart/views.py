@@ -1,8 +1,13 @@
+from itertools import product
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.timezone import now
 from django.http import JsonResponse
 from cart.models import Coupon
 from products.models import ProductVariant
+from django.contrib import messages
+import json
+import random
+from products.models import Product
 
 
 # =========================
@@ -20,7 +25,7 @@ def add_to_cart(request):
     quantity = int(request.POST.get("quantity", 1))
 
     variant = get_object_or_404(ProductVariant, id=variant_id)
-
+    product = variant.product
     cart = request.session.get("cart", {})
 
     image = ""
@@ -30,13 +35,18 @@ def add_to_cart(request):
     if variant_id in cart:
         cart[variant_id]["quantity"] += quantity
     else:
+
+        price = float(variant.product.get_display_price())
+
         cart[variant_id] = {
             "variant_id": variant.id,
             "product": variant.product.name,
-            "price": float(variant.product.get_display_price()),
+            "price": price,
+            "total_price": price * quantity,
             "size": variant.size,
             "quantity": quantity,
             "image": image,
+             "slug": product.slug,
         }
 
     request.session["cart"] = cart
@@ -78,6 +88,9 @@ def cart_detail(request):
 
     # ✅ ERROR MESSAGE (shown once)
     coupon_error = request.session.pop("coupon_error", None)
+  
+     # ✅ RECOMMENDED PRODUCTS (random 4 products)
+    recommended_products = Product.objects.filter(is_active=True).order_by('?')[:4]
 
     return render(request, "cart/cart_detail.html", {
         "cart": cart,
@@ -87,6 +100,7 @@ def cart_detail(request):
         "total": total,
         "coupon_code": coupon_code,
         "coupon_error": coupon_error,
+        "recommended_products": recommended_products,
     })
 
 
@@ -101,8 +115,9 @@ def cart_remove(request, variant_id):
         del cart[variant_id]
         request.session["cart"] = cart
         request.session.modified = True
+        return JsonResponse({"success": True})
 
-    return redirect("cart_detail")
+    return JsonResponse({"success": False})
 
 
 # =========================
@@ -150,3 +165,35 @@ def mini_cart(request):
         })
 
     return JsonResponse({"items": items})
+
+
+def cart_clear(request):
+    request.session['cart'] = {}
+    messages.success(request, "Cart cleared successfully!")
+    return redirect('cart_detail')
+
+def update_cart(request, variant_id):
+    if request.method != "POST":
+        return JsonResponse({"success": False}, status=405)
+
+    cart = request.session.get("cart", {})
+    variant_id = str(variant_id)
+
+    if variant_id not in cart:
+        return JsonResponse({"success": False, "error": "Item not found"})
+
+    try:
+        data = json.loads(request.body)
+        change = int(data.get("change", 0))
+    except:
+        return JsonResponse({"success": False, "error": "Invalid data"})
+
+    cart[variant_id]["quantity"] += change
+
+    if cart[variant_id]["quantity"] <= 0:
+        del cart[variant_id]
+
+    request.session["cart"] = cart
+    request.session.modified = True
+
+    return JsonResponse({"success": True})

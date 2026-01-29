@@ -1,6 +1,6 @@
 from itertools import product
 from django.shortcuts import render, get_object_or_404,redirect
-from .models import Product, ProductVariant, Category,ProductReview
+from .models import Product, ProductVariant, Category,ProductReview, ProductReview
 from django.http import Http404, JsonResponse
 from accounts.models import Wishlist
 from django.db.models import Q
@@ -11,7 +11,7 @@ from .utils import user_purchased_product
 from django.views.decorators.http import require_POST
 from django.template.loader import render_to_string
 from django.db.models import Case, When, BooleanField
-
+from accounts.models import Wishlist
 
 def product_detail(request, slug):
     # =============================
@@ -247,3 +247,53 @@ def search_autocomplete(request):
         {"name": p.name, "slug": p.slug}
         for p in products
     ], safe=False)
+
+
+@login_required
+def toggle_wishlist(request):
+    if request.method == "POST":
+        product_id = request.POST.get("product_id")
+
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Product not found"})
+
+        wishlist_item, created = Wishlist.objects.get_or_create(
+            user=request.user,
+            product=product
+        )
+
+        if not created:
+            wishlist_item.delete()
+            return JsonResponse({"success": True, "action": "removed"})
+        else:
+            return JsonResponse({"success": True, "action": "added"})
+
+    return JsonResponse({"success": False})
+
+
+@login_required
+def submit_review(request, slug):
+    if request.method == "POST":
+        rating = request.POST.get("rating")
+        comment = request.POST.get("comment", "")
+
+        try:
+            product = Product.objects.get(slug=slug)
+        except Product.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Product not found"})
+
+        # Prevent multiple reviews by same user
+        review, created = ProductReview.objects.get_or_create(
+            user=request.user,
+            product=product,
+            defaults={"rating": rating, "comment": comment}
+        )
+
+        if not created:
+            return JsonResponse({"success": False, "message": "You already reviewed this product"})
+
+        return JsonResponse({"success": True})
+
+    return JsonResponse({"success": False})

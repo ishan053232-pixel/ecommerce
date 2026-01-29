@@ -6,18 +6,105 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Fashion Flare</title>
     <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    
+    <!-- Premium Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
-        
+        /* ===============================
+           PREMIUM TYPOGRAPHY SYSTEM
+        ================================ */
         * {
-            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.02em;
+        }
+
+        /* Elegant serif for headlines */
+        h1, h2, h3, .serif {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-weight: 300;
         }
 
         html {
             scroll-behavior: smooth;
         }
 
+        /* ===============================
+           PREMIUM SCROLLBAR
+        ================================ */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f8f8f8;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c0c0c0;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #888;
+        }
+
+        /* ===============================
+           LOADING ANIMATION
+        ================================ */
+        .page-loader {
+            position: fixed;
+            inset: 0;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .page-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 20px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            animation: fadeInOut 2s ease-in-out infinite;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* ===============================
+           REFINED ANIMATIONS
+        ================================ */
         @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
             from {
                 opacity: 0;
                 transform: translateY(30px);
@@ -28,274 +115,457 @@
             }
         }
 
-        .hero-text.animate .hero-tag {
-            animation: fadeInUp 0.8s ease-out 0.2s both;
-        }
-
-        .hero-text.animate .hero-title {
-            animation: fadeInUp 0.8s ease-out 0.4s both;
-        }
-
-        .hero-text.animate .hero-desc {
-            animation: fadeInUp 0.8s ease-out 0.6s both;
-        }
-
-        .hero-text.animate .hero-btn {
-            animation: fadeInUp 0.8s ease-out 0.8s both;
-        }
-
-        @keyframes slideIn {
+        @keyframes scaleIn {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: scale(0.95);
             }
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: scale(1);
             }
         }
 
+        /* ===============================
+           HERO SECTION
+        ================================ */
+        .hero-slide {
+              position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+  z-index: 1;
+}
+
+       
+
+        .hero-slide img,
+        .hero-video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            filter: brightness(0.9) contrast(1.05);
+            display: block;
+        }
+
+        /* Fallback background for hero */
+        .hero-slide::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: #e5e5e5;
+            z-index: -1;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                105deg,
+                rgba(0,0,0,0.7) 0%,
+                rgba(0,0,0,0.4) 30%,
+                rgba(0,0,0,0.1) 60%,
+                transparent 100%
+            );
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .hero-content a,
+        .hero-content button {
+            pointer-events: auto;
+        }
+
+        .hero-box {
+            max-width: 640px;
+            padding-left: 80px;
+            padding-bottom: 100px;
+        }
+
+        /* Hero Text Elements - Premium Typography */
+        .hero-tag {
+            display: inline-block;
+            font-size: 9px;
+            font-weight: 400;
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            opacity: 0.8;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding-bottom: 8px;
+        }
+
+        .hero-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(42px, 5vw, 72px);
+            font-weight: 300;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            letter-spacing: 0.02em;
+        }
+
+        .hero-desc {
+            font-size: 16px;
+            font-weight: 300;
+            opacity: 0.85;
+            line-height: 1.8;
+            max-width: 520px;
+            letter-spacing: 0.03em;
+        }
+
+        .hero-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 32px;
+            font-size: 10px;
+            font-weight: 400;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            padding: 16px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-btn::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 1px;
+            background: white;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hero-btn:hover::after {
+            width: 100%;
+        }
+
+        .hero-btn .arrow {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hero-btn:hover .arrow {
+            transform: translateX(8px);
+        }
+
+        /* Hero Text Animation */
+        .hero-text .hero-tag,
+        .hero-text .hero-title,
+        .hero-text .hero-desc,
+        .hero-text .hero-btn {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
+                        transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hero-slide.active .hero-text .hero-tag,
+        .hero-slide.active .hero-text .hero-title,
+        .hero-slide.active .hero-text .hero-desc,
+        .hero-slide.active .hero-text .hero-btn {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .hero-slide.active .hero-text .hero-tag {
+            transition-delay: 0.3s;
+        }
+
+        .hero-slide.active .hero-text .hero-title {
+            transition-delay: 0.5s;
+        }
+
+        .hero-slide.active .hero-text .hero-desc {
+            transition-delay: 0.7s;
+        }
+
+        .hero-slide.active .hero-text .hero-btn {
+            transition-delay: 0.9s;
+        }
+
+        /* Force animation on page load for fallback hero */
+        section .hero-slide.active .hero-text * {
+            animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        /* ===============================
+           PREMIUM SLIDER DOTS
+        ================================ */
+        .slider-dot {
+            width: 32px;
+            height: 1px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+        }
+
+        .slider-dot.bg-white {
+            background: white;
+            width: 48px;
+        }
+
+        /* ===============================
+           TRENDING BADGE - REFINED
+        ================================ */
+        .trending-badge {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            color: white;
+            font-size: 9px;
+            padding: 6px 12px;
+            border-radius: 2px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-weight: 400;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .trending-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        .trending-fire {
+            display: inline-block;
+            animation: gentleFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes gentleFloat {
+            0%, 100% { 
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-3px);
+            }
+        }
+
+        /* ===============================
+           PRODUCT CARDS - LUXURY HOVER
+        ================================ */
         .product-card {
             animation: slideIn 0.6s ease-out both;
         }
 
         .product-card:nth-child(1) { animation-delay: 0.1s; }
-        .product-card:nth-child(2) { animation-delay: 0.2s; }
-        .product-card:nth-child(3) { animation-delay: 0.3s; }
-        .product-card:nth-child(4) { animation-delay: 0.4s; }
-        .product-card:nth-child(5) { animation-delay: 0.5s; }
-        .product-card:nth-child(6) { animation-delay: 0.6s; }
-        .product-card:nth-child(7) { animation-delay: 0.7s; }
-        .product-card:nth-child(8) { animation-delay: 0.8s; }
+        .product-card:nth-child(2) { animation-delay: 0.15s; }
+        .product-card:nth-child(3) { animation-delay: 0.2s; }
+        .product-card:nth-child(4) { animation-delay: 0.25s; }
+        .product-card:nth-child(5) { animation-delay: 0.3s; }
+        .product-card:nth-child(6) { animation-delay: 0.35s; }
+        .product-card:nth-child(7) { animation-delay: 0.4s; }
+        .product-card:nth-child(8) { animation-delay: 0.45s; }
 
-        @supports (backdrop-filter: blur(10px)) {
-            .backdrop-blur-header {
-                backdrop-filter: blur(10px);
+        .product-image-container {
+            position: relative;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+
+        .product-image-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255,255,255,0.3),
+                transparent
+            );
+            transition: left 0.6s ease;
+            z-index: 10;
+        }
+
+        .product-card:hover .product-image-container::before {
+            left: 100%;
+        }
+
+        /* ===============================
+           HEADER REFINEMENTS
+        ================================ */
+        
+
+        header {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+        /* Premium dropdown animation */
+        .dropdown-menu {
+            transform-origin: top;
+            animation: dropdownSlide 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes dropdownSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
             }
         }
 
-        ::-webkit-scrollbar {
-            width: 10px;
+        /* ===============================
+           SEARCH REFINEMENTS
+        ================================ */
+        #searchResults {
+            z-index: 60;
+            animation: scaleIn 0.2s ease;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         }
 
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
+        #searchResults li a {
+            font-size: 13px;
+            font-weight: 300;
+            letter-spacing: 0.02em;
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 5px;
+        #searchResults li a:hover {
+            background-color: #fafafa;
         }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
+        /* ===============================
+           SECTION DIVIDERS
+        ================================ */
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 12px;
         }
-.hero-slide {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
 
-.hero-slide img,
-.hero-video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 1;
-}
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 1px;
+            background: #000;
+        }
 
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
+        /* ===============================
+           MOBILE RESPONSIVE
+        ================================ */
+        @media (max-width: 768px) {
+            .hero-box {
+                padding-left: 32px;
+                padding-bottom: 80px;
+                max-width: 90%;
+            }
+
+            .hero-title {
+                font-size: 38px;
+            }
+
+            .hero-desc {
+                font-size: 14px;
+            }
+
+            body {
+                cursor: auto;
+            }
+
+            a, button {
+                cursor: pointer;
+            }
+        }
+
+        /* ===============================
+           PREMIUM FOOTER
+        ================================ */
+        footer {
+            background: #fafafa;
+            border-top: 1px solid rgba(0,0,0,0.06);
+        }
+
+        footer p, footer a {
+            font-weight: 300;
+            letter-spacing: 0.02em;
+        }
+
+        footer input {
+            font-weight: 300;
+            letter-spacing: 0.02em;
+        }
+
+        /* ===============================
+           PRICE TYPOGRAPHY
+        ================================ */
+        .price-current {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 400;
+            letter-spacing: 0.03em;
+        }
+
+        .price-original {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.02em;
+        }
+
+        /* ===============================
+           MICRO-INTERACTIONS
+        ================================ */
+        a, button {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Subtle parallax effect on scroll (optional enhancement) */
+        @media (prefers-reduced-motion: no-preference) {
+            .parallax-slow {
+                transform: translateZ(0);
+                will-change: transform;
+            }
+        }
+
+
+      .hero-slide.active {
+  opacity: 1;
   z-index: 2;
 }
 
-.hero-content {
+section.hero-wrapper {
   position: relative;
-  z-index: 3;
+  width: 100%;
+  height: 80vh;
 }
 
 
-/* 🔥 IMPROVED TRENDING BADGE WITH SMOOTH ANIMATIONS */
-
-.trending-badge {
-  /* Smoother gradient with more color stops */
-  background: linear-gradient(135deg, 
-    #000 0%, 
-    #1a1a1a 25%, 
-    #333 50%, 
-    #1a1a1a 75%, 
-    #000 100%
-  );
-  background-size: 300% 300%;
-  
-  /* Slower, smoother animations with ease-in-out timing */
-  animation: 
-    gradientMove 4s ease-in-out infinite,
-    pulse 3s ease-in-out infinite;
-  
-  color: white;
-  font-size: 10px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  
-  /* Subtle shadow that enhances the effect */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  
-  /* Smooth transitions for hover effects */
-  transition: all 0.3s ease;
+header {
+  height: 72px;
 }
-
-/* Optional hover effect */
-.trending-badge:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-}
-
-/* SMOOTHER PULSE ANIMATION */
-/* Reduced scale change and enhanced shadow */
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  }
-  50% {
-    transform: scale(1.03);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-  }
-}
-
-/* SMOOTHER GRADIENT MOVEMENT */
-/* Loop back to start for seamless animation */
-@keyframes gradientMove {
-  0% { 
-    background-position: 0% 50%; 
-  }
-  50% { 
-    background-position: 100% 50%; 
-  }
-  100% { 
-    background-position: 0% 50%; 
-  }
-}
-
-/* SMOOTHER FIRE EMOJI BOUNCE */
-.trending-fire {
-  display: inline-block;
-  animation: fireBounce 2s ease-in-out infinite;
-}
-
-/* More natural bounce with multiple keyframes */
-@keyframes fireBounce {
-  0%, 100% { 
-    transform: translateY(0) scale(1);
-  }
-  25% {
-    transform: translateY(-3px) scale(1.1);
-  }
-  50% {
-    transform: translateY(0) scale(1);
-  }
-  75% {
-    transform: translateY(-1px) scale(1.05);
-  }
-}
-
-
-/* ALTERNATIVE STYLES (OPTIONAL) */
-
-/* Option 1: Subtle shimmer effect */
-.trending-badge-shimmer {
-  background: linear-gradient(135deg, 
-    #000 0%, 
-    #2a2a2a 40%, 
-    #444 50%, 
-    #2a2a2a 60%, 
-    #000 100%
-  );
-  background-size: 400% 400%;
-  animation: 
-    shimmer 5s ease-in-out infinite,
-    gentlePulse 4s ease-in-out infinite;
-  color: white;
-  font-size: 10px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-@keyframes shimmer {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
-@keyframes gentlePulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  }
-  50% {
-    transform: scale(1.02);
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
-  }
-}
-
-/* Option 2: Minimal animation (most subtle) */
-.trending-badge-minimal {
-  background: #000;
-  color: white;
-  font-size: 10px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  animation: minimalPulse 4s ease-in-out infinite;
-}
-
-@keyframes minimalPulse {
-  0%, 100% {
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  }
-  50% {
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
-  }
-}
-
-.trending-fire-minimal {
-  display: inline-block;
-  animation: gentleBounce 3s ease-in-out infinite;
-}
-
-@keyframes gentleBounce {
-  0%, 100% { 
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-2px);
-  }
-}
-
 
 
     </style>
@@ -303,17 +573,22 @@
 
 <body class="bg-white text-gray-900">
 
+    <!-- PAGE LOADER -->
+    <div class="page-loader" id="pageLoader">
+        <div class="loader-text">The Fashion Flare</div>
+    </div>
+
     <!-- HEADER -->
-    <header class="border-b border-gray-200 sticky top-0 z-50 bg-white/90 backdrop-blur-header">
-        <div class="max-w-[1400px] mx-auto px-6 md:px-10 py-6 md:py-8 flex justify-between items-center">
+    <header class="sticky top-0 z-50">
+        <div class="max-w-[1400px] mx-auto px-6 md:px-10 py-6 md:py-7 flex justify-between items-center">
             
             <!-- Logo -->
-            <a href="/" class="text-xs tracking-[0.25em] uppercase font-light hover:text-gray-600 transition">
-                THE FASHION FLARE
+            <a href="/" class="text-[12px] tracking-[0.25em] uppercase font-light hover:opacity-60 transition-opacity serif">
+                The Fashion Flare
             </a>
 
             <!-- Desktop Navigation -->
-            <nav class="hidden md:flex gap-10 lg:gap-14 text-[11px] tracking-[0.2em] uppercase text-gray-500">
+            <nav class="hidden md:flex gap-12 lg:gap-16 text-[11px] tracking-[0.3em] uppercase text-gray-800 font-light">
                 <a href="/" class="hover:text-black transition-colors duration-300">All</a>
                 {% for cat in categories %}
                     <a href="/?category={{ cat.slug }}" class="hover:text-black transition-colors duration-300">
@@ -323,7 +598,7 @@
             </nav>
 
             <!-- Right Side Actions -->
-            <div class="flex items-center gap-6">
+            <div class="flex items-center gap-7">
                 
                 <!-- Search (Desktop) -->
                 <form method="get" action="{% url 'product_search' %}" class="hidden md:block relative">
@@ -333,60 +608,59 @@
                         id="searchInput"
                         placeholder="Search"
                         value="{{ request.GET.q }}"
-                        class="w-44 text-xs tracking-widest uppercase border-b border-gray-300 bg-transparent outline-none py-1 pr-6 focus:border-black transition-colors duration-300"
+                        class="w-48 text-[11px] tracking-[0.2em] uppercase border-b border-gray-200 bg-transparent outline-none py-2 pr-6 focus:border-black transition-all duration-300"
                     >
-                    <span class="absolute right-0 top-1 text-gray-400 text-xs pointer-events-none">⌕</span>
+                    <span class="absolute right-0 top-2 text-gray-400 text-xs pointer-events-none">⌕</span>
                     
                     <!-- Search Results Dropdown -->
-                    <ul id="searchResults" class="hidden absolute top-full left-0 mt-2 w-64 bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200 max-h-64 overflow-y-auto"></ul>
+                    <ul id="searchResults" class="hidden absolute top-full left-0 mt-3 w-72 bg-white shadow-2xl rounded-sm overflow-hidden border border-gray-100 max-h-64 overflow-y-auto"></ul>
                 </form>
 
                 <!-- Account Dropdown -->
                 <div class="relative group hidden md:block">
-                    <button class="flex items-center gap-2 text-xs tracking-widest uppercase text-gray-700 hover:text-black transition-colors duration-300">
+                    <button class="flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase text-gray-700 hover:text-black transition-colors duration-300 font-light">
                         {% if user.is_authenticated %}
-                            <span class="font-normal">Hi,</span>
-                            <span class="font-medium">{{ user.username }}</span>
+                            <span>{{ user.username }}</span>
                         {% else %}
                             <span>Account</span>
                         {% endif %}
-                        <span class="text-xs text-gray-500 transition-transform duration-200 group-hover:rotate-180">▼</span>
+                        <span class="text-[8px] text-gray-500 transition-transform duration-300 group-hover:rotate-180">▼</span>
                     </button>
 
                     <!-- Dropdown Menu -->
-                    <div class="absolute right-0 mt-3 w-48 bg-white shadow-xl rounded-xl overflow-hidden opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-300 z-50">
+                    <div class="dropdown-menu absolute right-0 mt-4 w-52 bg-white shadow-2xl rounded-sm overflow-hidden opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-300 z-50 border border-gray-100">
                         {% if user.is_authenticated %}
-                            <a href="{% url 'accounts:profile' %}" class="block px-5 py-3 text-sm hover:bg-gray-50 transition-colors">Profile</a>
-                            <a href="{% url 'accounts:wishlist' %}" class="block px-5 py-3 text-sm hover:bg-gray-50 transition-colors">Wishlist</a>
-                            <a href="{% url 'accounts:orders' %}" class="block px-5 py-3 text-sm hover:bg-gray-50 transition-colors">Orders</a>
+                            <a href="{% url 'accounts:profile' %}" class="block px-6 py-3 text-[11px] tracking-wider hover:bg-gray-50 transition-colors">Profile</a>
+                            <a href="{% url 'accounts:wishlist' %}" class="block px-6 py-3 text-[11px] tracking-wider hover:bg-gray-50 transition-colors">Wishlist</a>
+                            <a href="{% url 'accounts:orders' %}" class="block px-6 py-3 text-[11px] tracking-wider hover:bg-gray-50 transition-colors">Orders</a>
                             <div class="border-t border-gray-100"></div>
-                            <a href="{% url 'logout' %}" class="block px-5 py-3 text-sm text-red-500 hover:bg-gray-50 transition-colors">Logout</a>
+                            <a href="{% url 'logout' %}" class="block px-6 py-3 text-[11px] tracking-wider text-red-500 hover:bg-gray-50 transition-colors">Logout</a>
                         {% else %}
-                            <a href="{% url 'login' %}" class="block px-5 py-3 text-sm hover:bg-gray-50 transition-colors">Login</a>
-                            <a href="{% url 'register' %}" class="block px-5 py-3 text-sm hover:bg-gray-50 transition-colors">Register</a>
+                            <a href="{% url 'login' %}" class="block px-6 py-3 text-[11px] tracking-wider hover:bg-gray-50 transition-colors">Login</a>
+                            <a href="{% url 'register' %}" class="block px-6 py-3 text-[11px] tracking-wider hover:bg-gray-50 transition-colors">Register</a>
                         {% endif %}
                     </div>
                 </div>
 
                 <!-- Cart -->
                 <a href="{% url 'cart_detail' %}" class="relative text-gray-700 hover:text-black transition-colors duration-300">
-                    <span class="text-xl">🛒</span>
+                    <span class="text-lg">🛒</span>
                     {% if cart_count %}
-                        <span class="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                        <span class="absolute -top-1 -right-2 bg-black text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-light">
                             {{ cart_count }}
                         </span>
                     {% endif %}
                 </a>
 
                 <!-- Mobile Menu Button -->
-                <button id="mobileMenuBtn" class="md:hidden text-2xl text-gray-700">
+                <button id="mobileMenuBtn" aria-label="Open menu" class="md:hidden text-xl text-gray-700 font-light">
                     ☰
                 </button>
             </div>
         </div>
 
         <!-- Mobile Menu -->
-        <div id="mobileMenu" class="md:hidden hidden border-t border-gray-200 bg-white">
+        <div id="mobileMenu" class="md:hidden hidden border-t border-gray-100 bg-white">
             <div class="px-6 py-6 space-y-4">
                 <!-- Search (Mobile) -->
                 <form method="get" action="{% url 'product_search' %}" class="relative mb-6">
@@ -395,269 +669,241 @@
                         name="q"
                         placeholder="Search"
                         value="{{ request.GET.q }}"
-                        class="w-full text-xs tracking-widest uppercase border-b border-gray-300 bg-transparent outline-none py-2 pr-6 focus:border-black transition-colors"
+                        class="w-full text-[10px] tracking-[0.2em] uppercase border-b border-gray-200 bg-transparent outline-none py-2 pr-6 focus:border-black transition-colors"
                     >
                     <button type="submit" class="absolute right-0 top-2 text-gray-400 text-xs">⌕</button>
                 </form>
 
                 <!-- Navigation Links -->
-                <a href="/" class="block text-xs tracking-widest uppercase text-gray-600 hover:text-black py-2">All</a>
+                <a href="/" class="block text-[10px] tracking-[0.2em] uppercase text-gray-800 hover:text-black py-2 font-light">All</a>
                 {% for cat in categories %}
-                    <a href="/?category={{ cat.slug }}" class="block text-xs tracking-widest uppercase text-gray-600 hover:text-black py-2">
+                    <a href="/?category={{ cat.slug }}" class="block text-[10px] tracking-[0.2em] uppercase text-gray-800 hover:text-black py-2 font-light">
                         {{ cat.name }}
                     </a>
                 {% endfor %}
                 
-                <div class="border-t border-gray-200 my-4"></div>
+                <div class="border-t border-gray-100 my-4"></div>
                 
                 <!-- Account Links -->
                 {% if user.is_authenticated %}
-                    <a href="{% url 'accounts:profile' %}" class="block text-xs tracking-widest uppercase text-gray-600 hover:text-black py-2">Profile</a>
-                    <a href="{% url 'accounts:wishlist' %}" class="block text-xs tracking-widest uppercase text-gray-600 hover:text-black py-2">Wishlist</a>
-                    <a href="{% url 'accounts:orders' %}" class="block text-xs tracking-widest uppercase text-gray-600 hover:text-black py-2">Orders</a>
-                    <a href="{% url 'logout' %}" class="block text-xs tracking-widest uppercase text-red-500 hover:text-red-700 py-2">Logout</a>
+                    <a href="{% url 'accounts:profile' %}" class="block text-[10px] tracking-[0.2em] uppercase text-gray-800 hover:text-black py-2 font-light">Profile</a>
+                    <a href="{% url 'accounts:wishlist' %}" class="block text-[10px] tracking-[0.2em] uppercase text-gray-800 hover:text-black py-2 font-light">Wishlist</a>
+                    <a href="{% url 'accounts:orders' %}" class="block text-[10px] tracking-[0.2em] uppercase text-gray-800 hover:text-black py-2 font-light">Orders</a>
+                    <a href="{% url 'logout' %}" class="block text-[10px] tracking-[0.2em] uppercase text-red-500 hover:text-red-700 py-2 font-light">Logout</a>
                 {% else %}
-                    <a href="{% url 'login' %}" class="block text-xs tracking-widest uppercase text-gray-600 hover:text-black py-2">Login</a>
-                    <a href="{% url 'register' %}" class="block text-xs tracking-widest uppercase text-gray-600 hover:text-black py-2">Register</a>
+                    <a href="{% url 'login' %}" class="block text-[10px] tracking-[0.2em] uppercase text-gray-800 hover:text-black py-2 font-light">Login</a>
+                    <a href="{% url 'register' %}" class="block text-[10px] tracking-[0.2em] uppercase text-gray-800 hover:text-black py-2 font-light">Register</a>
                 {% endif %}
             </div>
         </div>
     </header>
-<style>
-.hero-slide {
-  position: absolute;
-}
-section {
-  position: relative;
-}
-</style>
-<style>
-.hero-slide {
-  transition: opacity 1s ease;
-}
 
-/* Fix slider overlapping next sections */
-section {
-  position: relative;
-}
-</style>
+    <!-- HERO SLIDER -->
+    {% if hero_items %}
+    <section class="hero-wrapper overflow-hidden bg-gray-100">
+        <div class="absolute inset-0 w-full h-full">
+            {% for item in hero_items %}
+            <div class="hero-slide {% if forloop.first %}active{% endif %}">
+                <!-- IMAGE -->
+                {% if item.type == "image" %}
+                    <img src="{{ item.image }}" alt="{{ item.title }}">
+                {% endif %}
 
- {% if hero_items %}
-<section class="relative w-full h-[75vh] overflow-hidden z-10">
+                <!-- VIDEO -->
+                {% if item.type == "video" %}
+                    <video muted playsinline class="hero-video">
+                        <source src="{{ item.video }}" type="video/mp4">
+                    </video>
+                {% endif %}
 
-  <div class="absolute inset-0">
+                <!-- OVERLAY -->
+                <div class="hero-overlay"></div>
 
-    {% for item in hero_items %}
-    <div class="hero-slide opacity-0 transition-opacity duration-1000 {% if forloop.first %}opacity-100{% endif %}">
+                <!-- HERO TEXT -->
+                <div class="hero-content absolute inset-0 flex items-end justify-start">
+                    <div class="hero-box hero-text text-white">
+                        {% if item.tag %}
+                        <span class="hero-tag">{{ item.tag }}</span>
+                        {% endif %}
 
-      <!-- IMAGE -->
-      {% if item.type == "image" %}
-        <img src="{{ item.image }}">
-      {% endif %}
+                        <h1 class="hero-title">{{ item.title }}</h1>
 
-      <!-- VIDEO -->
-      {% if item.type == "video" %}
-        <video muted playsinline class="hero-video">
-          <source src="{{ item.video }}" type="video/mp4">
-        </video>
-      {% endif %}
+                        {% if item.description %}
+                        <p class="hero-desc">{{ item.description }}</p>
+                        {% endif %}
 
-      <!-- OVERLAY -->
-      <div class="hero-overlay"></div>
-
-      <!-- TEXT -->
-      <div class="hero-content absolute inset-0 flex items-center">
-        <div class="max-w-[1400px] mx-auto px-10 text-white hero-text">
-
-          {% if item.tag %}
-          <span class="block text-xs tracking-[0.4em] uppercase mb-4">
-            {{ item.tag }}
-          </span>
-          {% endif %}
-
-          <h2 class="text-4xl md:text-6xl font-light mb-4">
-            {{ item.title }}
-          </h2>
-
-          {% if item.description %}
-          <p class="text-white/80 max-w-lg">
-            {{ item.description }}
-          </p>
-          {% endif %}
-
+                        <a href="/?category=mens" class="hero-btn">
+                            <span>Explore Collection</span>
+                            <span class="arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-      </div>
 
-    </div>
-    {% endfor %}
+        <!-- Slider Dots -->
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-2 z-50">
+            {% for item in hero_items %}
+            <button class="slider-dot {% if forloop.first %}bg-white{% endif %}"
+                    data-slide="{{ forloop.counter0 }}"
+                    aria-label="Go to slide {{ forloop.counter }}"></button>
+            {% endfor %}
+        </div>
+    </section>
+    {% else %}
+    <!-- FALLBACK HERO (when no hero_items exist) -->
+    <section class="relative w-full h-[80vh] overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <div class="absolute inset-0 w-full h-full">
+            <div class="hero-slide opacity-100">
+                <!-- Placeholder background pattern -->
+                <div style="position: absolute; inset: 0; background: repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 10px, transparent 10px, transparent 20px);"></div>
+                
+                <!-- OVERLAY -->
+                <div class="hero-overlay"></div>
 
-  </div>
+                <!-- HERO TEXT -->
+                <div class="hero-content absolute inset-0 flex items-end justify-start">
+                    <div class="hero-box hero-text text-white">
+                        <span class="hero-tag">New Season</span>
+                        <h1 class="hero-title">The Fashion Flare Collection</h1>
+                        <p class="hero-desc">Discover timeless pieces crafted with precision and style. Elevate your wardrobe with our curated essentials.</p>
+                        <a href="/?category=mens" class="hero-btn">
+                            <span>Explore Collection</span>
+                            <span class="arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-  <!-- Dots -->
-  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-20">
-    {% for item in hero_items %}
-    <button class="slider-dot w-2 h-2 rounded-full {% if forloop.first %}bg-white{% else %}bg-white/50{% endif %}"
-            data-slide="{{ forloop.counter0 }}"></button>
-    {% endfor %}
-  </div>
-
-</section>
-{% endif %}
-
-
+        <!-- Slider Dots -->
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-2 z-50">
+            <button class="slider-dot bg-white" style="width: 48px;" aria-label="Go to slide 1"></button>
+        </div>
+    </section>
+    {% endif %}
 
     <!-- SUBCATEGORY FILTERS -->
     {% if active_category == "mens" %}
-    <div class="max-w-[1400px] mx-auto px-6 md:px-10 mt-12 flex gap-10 text-xs uppercase tracking-widest text-gray-500">
-        <a href="?category=mens" class="hover:text-black transition-colors">All</a>
-        <a href="?category=mens&sub=tshirts" class="hover:text-black transition-colors">T-Shirts</a>
-        <a href="?category=mens&sub=jackets" class="hover:text-black transition-colors">Jackets</a>
-        <a href="?category=mens&sub=jeans" class="hover:text-black transition-colors">Jeans</a>
+    <div class="max-w-[1400px] mx-auto px-6 md:px-10 mt-16 flex gap-12 text-[10px] uppercase tracking-[0.3em] text-gray-500 font-light">
+        <a href="?category=mens" class="hover:text-black transition-colors pb-2 border-b border-transparent hover:border-black">All</a>
+        <a href="?category=mens&sub=tshirts" class="hover:text-black transition-colors pb-2 border-b border-transparent hover:border-black">T-Shirts</a>
+        <a href="?category=mens&sub=jackets" class="hover:text-black transition-colors pb-2 border-b border-transparent hover:border-black">Jackets</a>
+        <a href="?category=mens&sub=jeans" class="hover:text-black transition-colors pb-2 border-b border-transparent hover:border-black">Jeans</a>
     </div>
     {% endif %}
 
-  
+    <!-- PRODUCTS GRID -->
+    <section class="max-w-[1400px] mx-auto px-6 md:px-10 py-20 md:py-28">
+        <h2 class="section-title text-gray-800 mb-16">
+            {% if active_category %}
+                {{ active_category }} Collection
+            {% else %}
+                Curated Essentials
+            {% endif %}
+        </h2>
 
-<!-- PRODUCTS GRID -->
-<section class="max-w-[1400px] mx-auto px-6 md:px-10 py-16 md:py-24">
+        {% if products %}
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8 md:gap-12">
+            {% for product in products %}
+            <a href="{% url 'product_detail' product.slug %}" class="product-card group flex flex-col">
+                <!-- IMAGE -->
+                <div class="product-image-container relative rounded-sm overflow-hidden w-full aspect-[3/4] mb-5">
+                    <!-- TRENDING BADGE -->
+                    {% if product.views >= 10 %}
+                    <span class="absolute top-4 left-4 z-10 trending-badge">
+                        Trending <span class="trending-fire">🔥</span>
+                    </span>
+                    {% endif %}
 
-  <h2 class="text-xs tracking-[0.3em] uppercase mb-12 text-gray-600">
-    {% if active_category %}
-      {{ active_category }} Products
-    {% else %}
-      Featured Products
+                    <!-- Product Images with Hover Effect -->
+                    {% if product.images.all|length > 1 %}
+                        <img src="{{ product.images.all.0.image.url }}"
+                             alt="{{ product.name }}"
+                             class="absolute inset-0 w-full h-full object-cover transition-all duration-700 opacity-100 group-hover:opacity-0 group-hover:scale-105">
+                        <img src="{{ product.images.all.1.image.url }}"
+                             alt="{{ product.name }}"
+                             class="absolute inset-0 w-full h-full object-cover transition-all duration-700 opacity-0 group-hover:opacity-100 group-hover:scale-105">
+                    {% else %}
+                        <img src="{{ product.images.first.image.url }}"
+                             alt="{{ product.name }}"
+                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                    {% endif %}
+                </div>
+
+                <!-- TEXT -->
+                <div class="flex flex-col justify-between min-h-[100px]">
+                    <p class="text-[13px] font-light text-gray-800 mb-2 leading-relaxed">{{ product.name }}</p>
+
+                    {% if product.discount_price %}
+                        <p class="text-[13px] mt-auto">
+                            <span class="price-current text-gray-900">₹{{ product.discount_price }}</span>
+                            <span class="price-original text-gray-400 line-through ml-3">₹{{ product.price }}</span>
+                        </p>
+                    {% else %}
+                        <p class="text-[13px] price-current text-gray-700 mt-auto">₹{{ product.price }}</p>
+                    {% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-gray-500 font-light">No products available</p>
+        {% endif %}
+    </section>
+
+    <!-- RECENTLY VIEWED -->
+    {% if recently_viewed %}
+    <section class="max-w-[1400px] mx-auto px-6 md:px-10 pb-20 md:pb-28">
+        <h2 class="section-title text-gray-800 mb-16">Recently Viewed</h2>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8 md:gap-12">
+            {% for product in recently_viewed %}
+            <a href="{% url 'product_detail' product.slug %}" class="product-card group flex flex-col">
+                {% if product.images.first %}
+                <div class="product-image-container relative overflow-hidden rounded-sm aspect-[3/4] mb-5">
+                    <img src="{{ product.images.first.image.url }}"
+                         alt="{{ product.name }}"
+                         class="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105">
+                </div>
+                {% endif %}
+
+                <!-- TEXT AREA -->
+                <div class="flex flex-col justify-between min-h-[100px]">
+                    <p class="text-[13px] font-light mb-2 line-clamp-2 leading-relaxed">{{ product.name }}</p>
+
+                    {% if product.discount_price %}
+                    <p class="text-[13px] mt-auto">
+                        <span class="price-current text-gray-900">₹{{ product.discount_price }}</span>
+                        <span class="price-original text-gray-400 line-through ml-3">₹{{ product.price }}</span>
+                    </p>
+                    {% else %}
+                    <p class="text-[13px] price-current text-gray-700 mt-auto">₹{{ product.price }}</p>
+                    {% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
     {% endif %}
-  </h2>
-
-  {% if products %}
-
-  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-24 items-start">
-
-    {% for product in products %}
-    <a href="{% url 'product_detail' product.slug %}"
-       class="group flex flex-col">
-
-      <!-- IMAGE -->
-      <div class="relative bg-gray-100 rounded-lg overflow-hidden w-full aspect-[3/4]">
-
-        <!-- ✅ TRENDING BADGE (ONLY THIS) -->
-      {% if product.views >= 10 %}
-<span class="absolute top-3 left-3 z-10 trending-badge">
-  Trending <span class="trending-fire">🔥</span>
-</span>
-{% endif %}
-
-
-        {% if product.images.first %}
-        <img src="{{ product.images.first.image.url }}"
-             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
-        {% endif %}
-
-      </div>
-
-      <!-- TEXT -->
-      <div class="mt-4 flex flex-col justify-between h-[90px]">
-
-        <p class="text-sm font-light text-gray-900 leading-snug line-clamp-2">
-          {{ product.name }}
-        </p>
-
-        {% if product.discount_price %}
-          <p class="text-sm mt-2">
-            ₹ {{ product.discount_price }}
-            <span class="text-gray-400 line-through ml-2">
-              ₹ {{ product.price }}
-            </span>
-          </p>
-        {% else %}
-          <p class="text-sm text-gray-600 mt-2">
-            ₹ {{ product.price }}
-          </p>
-        {% endif %}
-
-      </div>
-
-    </a>
-    {% endfor %}
-
-  </div>
-
-  {% else %}
-  <p class="text-sm text-gray-500">No products available</p>
-  {% endif %}
-
-</section>
-
-
-
-
-   <!-- RECENTLY VIEWED -->
-{% if recently_viewed %}
-<section class="max-w-[1400px] mx-auto px-6 md:px-10 pb-16 md:pb-24">
-
-  <h2 class="text-xs tracking-[0.3em] uppercase mb-12 text-gray-600">
-    Recently Viewed
-  </h2>
-
-  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-10">
-
-    {% for product in recently_viewed %}
-    <a href="{% url 'product_detail' product.slug %}"
-       class="product-card group flex flex-col">
-
-      {% if product.images.first %}
-      <div class="relative overflow-hidden bg-gray-100 rounded-lg aspect-[3/4] mb-4">
-        <img src="{{ product.images.first.image.url }}"
-             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
-      </div>
-      {% endif %}
-
-      <!-- TEXT AREA (equal height) -->
-      <div class="flex flex-col justify-between min-h-[110px]">
-
-        <p class="text-sm font-light mb-1 line-clamp-2">
-          {{ product.name }}
-        </p>
-
-        {% if product.discount_price %}
-        <p class="text-sm text-gray-900 mt-2">
-          ₹ {{ product.discount_price }}
-          <span class="text-gray-400 line-through ml-2">
-            ₹ {{ product.price }}
-          </span>
-        </p>
-        {% else %}
-        <p class="text-sm text-gray-600 mt-2">
-          ₹ {{ product.price }}
-        </p>
-        {% endif %}
-
-      </div>
-
-    </a>
-    {% endfor %}
-
-  </div>
-</section>
-{% endif %}
-
 
     <!-- FOOTER -->
-    <footer class="bg-[#fafafa] mt-16 border-t border-gray-200">
-        <div class="max-w-[1400px] mx-auto px-6 md:px-10 py-16 md:py-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 md:gap-16">
+    <footer class="bg-[#fafafa] mt-24 border-t border-gray-100">
+        <div class="max-w-[1400px] mx-auto px-6 md:px-10 py-20 md:py-24 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-16 md:gap-20">
             
             <!-- Brand -->
             <div>
-                <p class="text-xs tracking-[0.35em] uppercase mb-6 text-black">The Fashion Flare</p>
-                <p class="text-sm text-gray-600 leading-7 max-w-sm">
+                <p class="text-[10px] serif tracking-[0.4em] uppercase mb-7 text-black">The Fashion Flare</p>
+                <p class="text-[13px] text-gray-800 leading-relaxed max-w-sm">
                     Contemporary fashion designed for everyday confidence. Premium fabrics, modern silhouettes, and timeless style.
                 </p>
             </div>
 
             <!-- Shop -->
             <div>
-                <p class="text-xs tracking-[0.35em] uppercase mb-6 text-black">Shop</p>
-                <ul class="space-y-4 text-sm text-gray-600">
+                <p class="text-[10px] tracking-[0.4em] uppercase mb-7 text-black">Shop</p>
+                <ul class="space-y-4 text-[13px] text-gray-800">
                     {% for cat in categories %}
                     <li><a href="/?category={{ cat.slug }}" class="hover:text-black transition-colors">{{ cat.name }}</a></li>
                     {% endfor %}
@@ -666,19 +912,19 @@ section {
 
             <!-- Support -->
             <div>
-                <p class="text-xs tracking-[0.35em] uppercase mb-6 text-black">Support</p>
-                <ul class="space-y-4 text-sm text-gray-600">
-                    <li><a href="#" class="hover:text-black transition-colors">Contact</a></li>
-                    <li><a href="#" class="hover:text-black transition-colors">Shipping & Returns</a></li>
-                    <li><a href="#" class="hover:text-black transition-colors">Size Guide</a></li>
-                    <li><a href="#" class="hover:text-black transition-colors">FAQ</a></li>
+                <p class="text-[10px] tracking-[0.4em] uppercase mb-7 text-black">Support</p>
+                <ul class="space-y-4 text-[13px] text-gray-800">
+                    <li><a href="/contact/" class="hover:text-black transition-colors">Contact</a></li>
+                    <li><a href="/shipping/" class="hover:text-black transition-colors">Shipping & Returns</a></li>
+                    <li><a href="/size-guide/" class="hover:text-black transition-colors">Size Guide</a></li>
+                    <li><a href="/faq/" class="hover:text-black transition-colors">FAQ</a></li>
                 </ul>
             </div>
 
             <!-- Newsletter -->
             <div>
-                <p class="text-xs tracking-[0.35em] uppercase mb-6 text-black">Newsletter</p>
-                <p class="text-sm text-gray-600 mb-6 max-w-xs">
+                <p class="text-[10px] tracking-[0.4em] uppercase mb-7 text-black">Newsletter</p>
+                <p class="text-[13px] text-gray-800 mb-7 max-w-xs leading-relaxed">
                     Get early access to new collections and exclusive offers.
                 </p>
                 <form class="relative max-w-xs" method="post" action="#">
@@ -688,41 +934,40 @@ section {
                         name="email"
                         placeholder="Email address"
                         required
-                        class="w-full bg-transparent border-b border-gray-400 py-2 pr-8 text-sm outline-none focus:border-black transition-colors"
+                        class="w-full bg-transparent border-b border-gray-300 py-3 pr-8 text-[12px] outline-none focus:border-black transition-colors placeholder:text-gray-400"
                     >
-                    <button type="submit" class="absolute right-0 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black transition-colors">
+                    <button type="submit" class="absolute right-0 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black transition-colors text-sm">
                         →
                     </button>
                 </form>
             </div>
-
         </div>
 
         <!-- Bottom Bar -->
-        <div class="border-t border-gray-200">
-            <div class="max-w-[1400px] mx-auto px-6 md:px-10 py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+        <div class="border-t border-gray-100">
+            <div class="max-w-[1400px] mx-auto px-6 md:px-10 py-7 flex flex-col md:flex-row items-center justify-between gap-4 text-[10px] text-gray-500 tracking-wider">
                 <p>© 2026 The Fashion Flare. All rights reserved.</p>
-                <div class="flex gap-6">
-                    <a href="#" class="hover:text-black transition-colors">Privacy</a>
-                    <a href="#" class="hover:text-black transition-colors">Terms</a>
-                    <a href="#" class="hover:text-black transition-colors">Cookies</a>
+                <div class="flex gap-8">
+                    <a href="/privacy/" class="hover:text-black transition-colors">Privacy</a>
+                    <a href="/terms/" class="hover:text-black transition-colors">Terms</a>
+                    <a href="/cookies/" class="hover:text-black transition-colors">Cookies</a>
                 </div>
             </div>
         </div>
     </footer>
 
     <!-- Quick View Modal -->
-    <div id="quickView" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
-        <div class="bg-white w-full max-w-2xl rounded-2xl p-8 md:p-10 relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeQuickView()" class="absolute top-4 right-4 text-3xl text-gray-400 hover:text-black transition-colors">&times;</button>
+    <div id="quickView" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white w-full max-w-3xl rounded-sm p-10 md:p-12 relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeQuickView()" class="absolute top-6 right-6 text-2xl text-gray-400 hover:text-black transition-colors">&times;</button>
             
-            <div class="grid md:grid-cols-2 gap-8">
-                <img id="qvImage" src="" alt="" class="w-full h-80 object-cover rounded-lg bg-gray-100">
+            <div class="grid md:grid-cols-2 gap-10">
+                <img id="qvImage" src="" alt="" class="w-full h-96 object-cover rounded-sm bg-gray-100">
                 <div>
-                    <h3 id="qvName" class="text-2xl font-light mb-3"></h3>
-                    <p id="qvPrice" class="text-xl text-gray-900 mb-6"></p>
-                    <p class="text-sm text-gray-600 mb-6">Premium quality fabric with modern fit. Available in multiple sizes.</p>
-                    <button class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors text-sm tracking-widest uppercase">
+                    <h3 id="qvName" class="text-2xl serif font-light mb-4"></h3>
+                    <p id="qvPrice" class="text-xl text-gray-900 mb-8"></p>
+                    <p class="text-[13px] text-gray-800 mb-8 leading-relaxed">Premium quality fabric with modern fit. Available in multiple sizes.</p>
+                    <button class="w-full bg-black text-white py-4 rounded-sm hover:bg-gray-900 transition-colors text-[10px] tracking-[0.3em] uppercase">
                         Add to Cart
                     </button>
                 </div>
@@ -731,70 +976,75 @@ section {
     </div>
 
     <script>
-        // Hero Slider
+        // ===============================
+        // PAGE LOADER
+        // ===============================
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('pageLoader').classList.add('hidden');
+            }, 800);
+        });
+
+        // ===============================
+        // HERO SLIDER
+        // ===============================
         document.addEventListener("DOMContentLoaded", () => {
-  const slides = document.querySelectorAll(".hero-slide");
-  const dots = document.querySelectorAll(".slider-dot");
-  let current = 0;
-  let timeout;
+    const slides = document.querySelectorAll(".hero-slide");
+    const dots = document.querySelectorAll(".slider-dot");
+    let current = 0;
+    let timeout;
 
-  if (!slides.length) return;
+    function showSlide(index) {
+        clearTimeout(timeout);
 
-  function showSlide(index) {
-    clearTimeout(timeout);
+        slides.forEach((slide, i) => {
+            slide.classList.toggle("active", i === index);
 
-    slides.forEach((slide, i) => {
-      slide.classList.toggle("opacity-100", i === index);
-      slide.classList.toggle("opacity-0", i !== index);
+            const video = slide.querySelector("video");
 
-      const video = slide.querySelector("video");
+            if (video) {
+                if (i === index) {
+                    video.currentTime = 0;
+                    video.play();
+                    video.onended = () => nextSlide(); // ✅ wait till video ends
+                } else {
+                    video.pause();
+                }
+            }
+        });
 
-      if (video) {
-        if (i === index) {
-          video.currentTime = 0;
-          video.play();
+        dots.forEach((dot, i) => {
+            dot.classList.toggle("bg-white", i === index);
+            dot.style.width = i === index ? "48px" : "32px";
+        });
 
-          // ✅ Wait until video ends (40 sec or whatever)
-          video.onended = () => nextSlide();
-        } else {
-          video.pause();
+        const currentSlide = slides[index];
+        const hasVideo = currentSlide.querySelector("video");
+
+        // ✅ If image slide → auto change after 6 sec
+        if (!hasVideo) {
+            timeout = setTimeout(nextSlide, 6000);
         }
-      }
-    });
+    }
+
+    function nextSlide() {
+        current = (current + 1) % slides.length;
+        showSlide(current);
+    }
 
     dots.forEach((dot, i) => {
-      dot.classList.toggle("bg-white", i === index);
-      dot.classList.toggle("bg-white/50", i !== index);
+        dot.addEventListener("click", () => {
+            current = i;
+            showSlide(current);
+        });
     });
 
-    // ✅ If slide is image → auto change after 6 sec
-    const currentSlide = slides[index];
-    const hasVideo = currentSlide.querySelector("video");
-
-    if (!hasVideo) {
-      timeout = setTimeout(nextSlide, 6000);
-    }
-  }
-
-  function nextSlide() {
-    current = (current + 1) % slides.length;
-    showSlide(current);
-  }
-
-  dots.forEach((dot, i) => {
-    dot.addEventListener("click", () => {
-      current = i;
-      showSlide(current);
-    });
-  });
-
-  showSlide(0);
+    showSlide(0);
 });
 
-
-      
-
-        // Mobile Menu Toggle
+        // ===============================
+        // MOBILE MENU TOGGLE
+        // ===============================
         const menuBtn = document.getElementById("mobileMenuBtn");
         const mobileMenu = document.getElementById("mobileMenu");
 
@@ -804,7 +1054,9 @@ section {
             });
         }
 
-        // Search Autocomplete
+        // ===============================
+        // SEARCH AUTOCOMPLETE
+        // ===============================
         const searchInput = document.getElementById("searchInput");
         const searchResults = document.getElementById("searchResults");
 
@@ -828,7 +1080,7 @@ section {
 
                     searchResults.innerHTML = data.map(item => `
                         <li>
-                            <a href="/product/${item.slug}/" class="block px-4 py-3 text-sm hover:bg-gray-50 transition-colors">
+                            <a href="/product/${item.slug}/" class="block px-5 py-4 text-sm hover:bg-gray-50 transition-colors">
                                 ${item.name}
                             </a>
                         </li>
@@ -847,7 +1099,9 @@ section {
             });
         }
 
-        // Quick View Modal
+        // ===============================
+        // QUICK VIEW MODAL
+        // ===============================
         function openQuickView(img, name, price) {
             document.getElementById("qvImage").src = img;
             document.getElementById("qvName").innerText = name;
@@ -867,7 +1121,9 @@ section {
             }
         });
 
-        // Smooth scroll for anchor links
+        // ===============================
+        // SMOOTH SCROLL
+        // ===============================
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 const href = this.getAttribute('href');
@@ -880,115 +1136,6 @@ section {
                 }
             });
         });
-
-
-
-        
     </script>
-
-    
-<script>
-function updateAddToCartState() {
-    const mobileBtn = document.getElementById("mobileAddToCartBtn");
-
-    if (selectedSize) {
-        // Desktop button
-        addToCartBtn.disabled = false;
-        addToCartBtn.classList.remove("opacity-40", "cursor-not-allowed");
-        addToCartBtn.classList.add("hover:bg-gray-900", "cursor-pointer");
-
-        // Mobile button
-        mobileBtn.disabled = false;
-        mobileBtn.classList.remove("opacity-40", "cursor-not-allowed");
-        mobileBtn.classList.add("hover:bg-gray-900", "cursor-pointer");
-
-    } else {
-        // Desktop button
-        addToCartBtn.disabled = true;
-        addToCartBtn.classList.add("opacity-40", "cursor-not-allowed");
-        addToCartBtn.classList.remove("hover:bg-gray-900", "cursor-pointer");
-
-        // Mobile button
-        mobileBtn.disabled = true;
-        mobileBtn.classList.add("opacity-40", "cursor-not-allowed");
-        mobileBtn.classList.remove("hover:bg-gray-900", "cursor-pointer");
-    }
-}
-
-
-const mobileStickyCart = document.getElementById("mobileStickyCart");
-const mainButton = document.getElementById("addToCartBtn");
-
-window.addEventListener("scroll", () => {
-    if (!mobileStickyCart || !mainButton) return;
-
-    const rect = mainButton.getBoundingClientRect();
-
-    // Hide sticky bar when main button is visible
-    if (rect.top < window.innerHeight && rect.bottom > 0) {
-        mobileStickyCart.classList.add("hidden");
-    } else {
-        mobileStickyCart.classList.remove("hidden");
-    }
-});
-
-</script>
-
-<script>
-window.addEventListener("load", () => {
-  const skeleton = document.getElementById("product-skeleton");
-  const products = document.getElementById("product-grid");
-
-  if (skeleton && products) {
-    skeleton.classList.add("hidden");
-    products.classList.remove("hidden");
-  }
-});
-</script>
-
-
-
-<!-- MOBILE STICKY ADD TO CART -->
-
-
-<div id="mobileStickyCart"
-     class="fixed bottom-0 left-0 right-0 z-50
-            bg-white border-t border-gray-200
-            px-4 py-3
-            flex items-center justify-between gap-4
-            md:hidden">
-
-    <!-- Price -->
-    <div>
-        <p class="text-xs text-gray-500 uppercase tracking-widest">Price</p>
-        <p class="text-lg font-semibold text-black">
-            {% if product.discount_price %}
-            ₹ {{ product.discount_price }}
-         <span class="text-xs text-gray-400 line-through ml-2">
-            ₹ {{ product.price }}
-             </span>
-             {% else %}
-              ₹ {{ product.price }}
-              {% endif %}
-
-        </p>
-    </div>
-
-    <!-- Button -->
-    <button
-        id="mobileAddToCartBtn"
-        onclick="addToCart()"
-        disabled
-        class="flex-1 ml-4
-               bg-black text-white
-               py-3 rounded-lg
-               text-sm uppercase tracking-[0.3em]
-               opacity-40 cursor-not-allowed
-               transition-all duration-200">
-        Add to cart
-    </button>
-</div>
-
-
 </body>
 </html>

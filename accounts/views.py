@@ -1,3 +1,4 @@
+from pyexpat.errors import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from products.models import Product
@@ -170,3 +171,10 @@ def address_delete(request, pk):
     address = get_object_or_404(Address, pk=pk, user=request.user)
     address.delete()
     return redirect("accounts:addresses")
+
+
+def clear_wishlist(request):
+    if request.method == "POST":
+        request.session["wishlist"] = {}
+        request.session.modified = True
+    return redirect("accounts:wishlist")

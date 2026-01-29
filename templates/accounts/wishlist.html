@@ -3,20 +3,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Your saved items and wishlist at The Fashion Flare">
   <title>Wishlist | The Fashion Flare</title>
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
   <link rel="stylesheet" href="{% static 'css/output.css' %}">
 </head>
-
 <body class="bg-[#f7f7f7] text-gray-900">
 
-<!-- HEADER -->
-<header class="border-b border-gray-200 sticky top-0 z-50 bg-white">
-  <div class="max-w-[1400px] mx-auto px-10 py-8 flex justify-between items-center">
-
-    <a href="/" class="text-xs tracking-[0.3em] uppercase font-light">
+<!-- ================= HEADER ================= -->
+<header class="border-b border-gray-200 sticky top-0 z-50 bg-white backdrop-blur">
+  <div class="max-w-[1400px] mx-auto px-4 md:px-10 py-6 md:py-8 flex justify-between items-center">
+    
+    <!-- BRAND -->
+    <a href="/" class="text-xs tracking-[0.3em] uppercase font-light hover:text-gray-600 transition">
       THE FASHION FLARE
     </a>
-
+    
+    <!-- NAV -->
     <nav class="hidden md:flex gap-14 text-[11px] tracking-[0.25em] uppercase text-gray-500">
       <a href="/" class="hover:text-black transition">All</a>
       {% for cat in categories %}
@@ -25,79 +29,266 @@
         </a>
       {% endfor %}
     </nav>
-
-    <a href="{% url 'cart_detail' %}" class="relative text-gray-600 hover:text-black transition">
-      🛒
-    </a>
-
+    
+    <!-- RIGHT ACTIONS -->
+    <div class="flex items-center gap-4 md:gap-6">
+      
+      <!-- ACCOUNT (Optional) -->
+      <a href="{% url 'accounts:profile' %}" 
+         class="hidden sm:flex items-center gap-2 text-sm text-gray-600 hover:text-black transition"
+         aria-label="My account">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+        </svg>
+      </a>
+      
+      <!-- CART -->
+      <a href="{% url 'cart_detail' %}" 
+         class="relative text-gray-600 hover:text-black transition"
+         aria-label="Shopping cart">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+        </svg>
+        {% if cart_count %}
+        <span class="absolute -top-2 -right-2 bg-black text-white text-[10px]
+                     rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
+          {{ cart_count }}
+        </span>
+        {% endif %}
+      </a>
+    </div>
   </div>
 </header>
 
-<section class="max-w-[1400px] mx-auto px-10 py-24">
-
-  <!-- BACK -->
-  <button onclick="history.back()"
-          class="text-xs uppercase tracking-[0.3em] text-gray-500 hover:text-black transition mb-12">
-    ← Back
-  </button>
-
-  <!-- TITLE -->
-  <div class="mb-20">
-    <p class="text-xs uppercase tracking-[0.35em] text-gray-400 mb-3">
-      Saved items
-    </p>
-    <h1 class="text-4xl font-light">
-      Wishlist
-    </h1>
+<!-- ================= MAIN CONTENT ================= -->
+<section class="max-w-[1400px] mx-auto px-4 md:px-10 py-16 md:py-24">
+  
+  <!-- BREADCRUMB -->
+  <div class="flex items-center gap-2 text-xs text-gray-500 mb-12">
+    <a href="{% url 'accounts:profile' %}" class="hover:text-black transition">Account</a>
+    <span>/</span>
+    <span class="text-black">Wishlist</span>
   </div>
-
+  
+  <!-- TITLE & COUNT -->
+  <div class="mb-16 md:mb-20 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+    <div>
+      <p class="text-xs uppercase tracking-[0.35em] text-gray-400 mb-3">
+        Saved items
+      </p>
+      <h1 class="text-3xl md:text-4xl font-light">
+        Wishlist
+      </h1>
+      {% if items %}
+      <p class="text-sm text-gray-500 mt-2">
+        {{ items|length }} item{{ items|length|pluralize }} saved
+      </p>
+      {% endif %}
+    </div>
+    
+    <!-- ACTIONS (if items exist) -->
+    {% if items %}
+    <div class="flex gap-3">
+      <form method="post" action="{% url 'accounts:clear_wishlist' %}" 
+            onsubmit="return confirm('Are you sure you want to clear your entire wishlist?')">
+        {% csrf_token %}
+        <button type="submit"
+                class="text-xs uppercase tracking-[0.3em] text-gray-600 hover:text-red-500 transition flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+          </svg>
+          Clear all
+        </button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+  
   {% if items %}
-  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-10 gap-y-24">
-
+  <!-- ================= WISHLIST GRID ================= -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 md:gap-x-10 gap-y-16 md:gap-y-24">
+    
     {% for item in items %}
     <div class="group">
-
-      <div class="relative overflow-hidden mb-6">
-        <a href="{% url 'product_detail' item.product.slug %}">
+      <!-- IMAGE CONTAINER -->
+      <div class="relative overflow-hidden mb-4 md:mb-6 bg-gray-100 rounded-lg">
+        <a href="{% url 'product_detail' item.product.slug %}" class="block">
           {% if item.product.images.first %}
             <img
               src="{{ item.product.images.first.image.url }}"
-              class="w-full h-[420px] object-cover
+              alt="{{ item.product.name }}"
+              class="w-full h-[280px] sm:h-[350px] md:h-[420px] object-cover
                      transition-transform duration-500
-                     group-hover:scale-105">
+                     group-hover:scale-105"
+              loading="lazy">
+          {% else %}
+            <div class="w-full h-[280px] sm:h-[350px] md:h-[420px] flex items-center justify-center bg-gray-200">
+              <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </div>
           {% endif %}
         </a>
-
+        
+        <!-- REMOVE FROM WISHLIST BUTTON -->
         <form method="post"
               action="{% url 'accounts:toggle_wishlist' item.product.id %}"
-              class="absolute top-4 right-4">
+              class="absolute top-3 right-3">
           {% csrf_token %}
-          <button class="bg-white/90 rounded-full p-2 hover:bg-black hover:text-white transition">
-            ❤️
+          <button type="submit"
+                  class="bg-white/95 backdrop-blur-sm rounded-full p-2 md:p-2.5 
+                         hover:bg-black hover:scale-110 transition-all shadow-md
+                         group/btn"
+                  aria-label="Remove from wishlist">
+            <!-- Heart Icon (filled) -->
+            <svg class="w-4 h-4 md:w-5 md:h-5 text-red-500 group-hover/btn:text-white transition" 
+                 fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
+            </svg>
           </button>
         </form>
+        
+        <!-- QUICK ADD TO CART (Optional) -->
+        <div class="absolute bottom-3 left-3 right-3 
+                    opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 
+                    transition-all duration-300">
+          <button onclick="addToCart('{{ item.variant_id }}')"
+        class="block w-full text-center text-xs uppercase tracking-[0.3em]
+               bg-white/95 backdrop-blur-sm py-3 rounded-lg
+               hover:bg-black hover:text-white transition shadow-md">
+  Add to cart
+</button>
+        </div>
       </div>
-
-      <p class="text-sm font-light mb-1">
-        {{ item.product.name }}
-      </p>
-
-      <p class="text-sm text-gray-600">
-        ₹ {{ item.product.get_display_price }}
-      </p>
-
+      
+      <!-- PRODUCT INFO -->
+      <div class="space-y-1">
+        <a href="{% url 'product_detail' item.product.slug %}" 
+           class="block hover:text-gray-600 transition">
+          <p class="text-sm font-light line-clamp-2">
+            {{ item.product.name }}
+          </p>
+        </a>
+        
+        <div class="flex items-center gap-2">
+          <p class="text-sm font-medium">
+            ₹{{ item.product.get_display_price }}
+          </p>
+          
+          {% if item.product.original_price and item.product.original_price > item.product.price %}
+          <p class="text-xs text-gray-400 line-through">
+            ₹{{ item.product.original_price }}
+          </p>
+          <span class="text-xs text-green-600 font-medium">
+            {{ item.product.discount_percentage }}% off
+          </span>
+          {% endif %}
+        </div>
+        
+        <!-- Stock Status -->
+        {% if item.product.stock > 0 %}
+          <p class="text-xs text-green-600">In stock</p>
+        {% else %}
+          <p class="text-xs text-red-600">Out of stock</p>
+        {% endif %}
+        
+        <!-- Added Date -->
+        <p class="text-xs text-gray-400 mt-2">
+          Added {{ item.created_at|timesince }} ago
+        </p>
+      </div>
     </div>
     {% endfor %}
-
+    
   </div>
-
+  
   {% else %}
-  <p class="text-center text-gray-500 mt-32">
-    Your wishlist is empty.
-  </p>
+  <!-- ================= EMPTY STATE ================= -->
+  <div class="text-center py-20 md:py-32 bg-white rounded-xl border border-gray-200 shadow-sm">
+    <div class="max-w-md mx-auto px-6">
+      <!-- Empty Icon -->
+      <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
+        <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+        </svg>
+      </div>
+      
+      <h2 class="text-2xl font-light mb-3">
+        Your wishlist is empty
+      </h2>
+      <p class="text-sm text-gray-500 mb-8">
+        Save your favorite items to your wishlist and shop them later.
+      </p>
+      
+      <a href="/"
+         class="inline-block text-xs uppercase tracking-[0.3em]
+                border border-black px-8 py-4 rounded-lg
+                hover:bg-black hover:text-white transition">
+        Explore products
+      </a>
+    </div>
+  </div>
   {% endif %}
-
+  
 </section>
+
+<!-- Focus States & Utilities -->
+<style>
+  a:focus, button:focus {
+    outline: 2px solid #000;
+    outline-offset: 2px;
+  }
+  
+  .product-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+
+  -webkit-line-clamp: 2; /* Safari, Chrome */
+  line-clamp: 2;         /* Standard (future support) */
+}
+</style>
+
+<script>
+function addToCart(variantId) {
+    fetch("{% url 'add_to_cart' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: new URLSearchParams({
+            variant_id: variantId,
+            quantity: 1
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("Added to cart!");
+            location.reload();
+        } else {
+            alert("Failed to add to cart");
+        }
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+
 
 </body>
 </html>

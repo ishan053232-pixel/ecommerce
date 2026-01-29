@@ -5,11 +5,13 @@ from products.models import Product
 class Wishlist(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name="wishlists"   # ✅ add this
     )
     product = models.ForeignKey(
         Product,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name="wishlisted_products"   # ✅ add this
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -18,6 +20,7 @@ class Wishlist(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.product}"
+
 
 
 class Address(models.Model):

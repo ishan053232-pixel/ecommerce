@@ -3,7 +3,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="View and track your Fashion Flare orders">
   <title>Your Orders | The Fashion Flare</title>
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
   <link rel="stylesheet" href="{% static 'css/output.css' %}">
 </head>
 
@@ -14,7 +17,7 @@
   <div class="max-w-[1400px] mx-auto px-10 py-6 flex justify-between items-center">
 
     <!-- BRAND -->
-    <a href="/" class="text-xs uppercase tracking-[0.3em] font-light">
+    <a href="/" class="text-xs uppercase tracking-[0.3em] font-light hover:text-gray-600 transition">
       THE FASHION FLARE
     </a>
 
@@ -33,10 +36,12 @@
 
       <!-- ACCOUNT -->
       <div class="relative group hidden md:block">
-        <button class="flex items-center gap-1 hover:text-black transition">
+        <button class="flex items-center gap-1 hover:text-black transition" aria-label="Account menu">
           <span>Hi,</span>
           <span class="font-medium">{{ user.username }}</span>
-          <span class="text-xs ml-1 group-hover:rotate-180 transition">▼</span>
+          <svg class="w-4 h-4 ml-1 group-hover:rotate-180 transition" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+          </svg>
         </button>
 
         <!-- DROPDOWN -->
@@ -46,28 +51,35 @@
                     group-hover:opacity-100 group-hover:visible group-hover:translate-y-0
                     transition-all duration-200 z-50">
 
-          <a href="{% url 'accounts:profile' %}" class="block px-4 py-3 hover:bg-gray-100">
+          <a href="{% url 'accounts:profile' %}" class="block px-4 py-3 hover:bg-gray-100 transition">
             Profile
           </a>
-          <a href="{% url 'accounts:wishlist' %}" class="block px-4 py-3 hover:bg-gray-100">
+          <a href="{% url 'accounts:wishlist' %}" class="block px-4 py-3 hover:bg-gray-100 transition">
             Wishlist
           </a>
-          <a href="{% url 'accounts:orders' %}" class="block px-4 py-3 hover:bg-gray-100 font-medium">
+          <a href="{% url 'accounts:orders' %}" class="block px-4 py-3 hover:bg-gray-100 font-medium transition" aria-current="page">
             Orders
           </a>
           <div class="border-t"></div>
-          <a href="{% url 'logout' %}" class="block px-4 py-3 text-red-500 hover:bg-gray-100">
+          <a href="{% url 'logout' %}" 
+             onclick="return confirm('Are you sure you want to logout?')"
+             class="block px-4 py-3 text-red-500 hover:bg-gray-100 transition">
             Logout
           </a>
         </div>
       </div>
 
       <!-- CART -->
-      <a href="{% url 'cart_detail' %}" class="relative hover:text-black transition">
-        🛒
+      <a href="{% url 'cart_detail' %}" 
+         class="relative hover:text-black transition"
+         aria-label="Shopping cart">
+        <!-- Cart Icon SVG -->
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+        </svg>
         {% if cart_count %}
         <span class="absolute -top-2 -right-2 bg-black text-white text-[10px]
-                     rounded-full px-1.5 py-0.5">
+                     rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
           {{ cart_count }}
         </span>
         {% endif %}
@@ -79,65 +91,134 @@
 
 
 <!-- ================= PAGE ================= -->
-<section class="max-w-[1100px] mx-auto px-10 py-16">
+<section class="max-w-[1100px] mx-auto px-4 md:px-10 py-16">
 
-  <!-- BACK -->
-  <button onclick="history.back()"
-          class="text-xs uppercase tracking-[0.3em] text-gray-500 hover:text-black mb-12">
-    ← Back
-  </button>
+  <!-- BREADCRUMB / BACK -->
+  <div class="flex items-center gap-2 text-xs text-gray-500 mb-12">
+    <a href="{% url 'accounts:profile' %}" class="hover:text-black transition">Account</a>
+    <span>/</span>
+    <span class="text-black">Orders</span>
+  </div>
 
-  <!-- TITLE -->
-  <div class="mb-16">
-    <p class="text-xs uppercase tracking-[0.35em] text-gray-400 mb-3">
-      Order history
-    </p>
-    <h1 class="text-4xl font-light">
-      Your Orders
-    </h1>
+  <!-- TITLE & FILTER -->
+  <div class="mb-12 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+    <div>
+      <p class="text-xs uppercase tracking-[0.35em] text-gray-400 mb-3">
+        Order history
+      </p>
+      <h1 class="text-3xl md:text-4xl font-light">
+        Your Orders
+      </h1>
+      {% if orders %}
+      <p class="text-sm text-gray-500 mt-2">
+        {{ orders|length }} order{{ orders|length|pluralize }}
+      </p>
+      {% endif %}
+    </div>
+
+    <!-- FILTER (Optional - you can add backend filtering) -->
+    {% if orders %}
+    <div class="flex gap-3">
+      <select class="text-xs uppercase tracking-widest border border-gray-300 rounded-lg px-4 py-2 bg-white hover:border-black transition focus:outline-none focus:ring-2 focus:ring-black">
+        <option>All orders</option>
+        <option>Pending</option>
+        <option>Shipped</option>
+        <option>Delivered</option>
+        <option>Cancelled</option>
+      </select>
+    </div>
+    {% endif %}
   </div>
 
   {% if orders %}
   <!-- ================= ORDERS ================= -->
-  <div class="space-y-10">
+  <div class="space-y-6">
 
     {% for order in orders %}
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8 hover:shadow-md transition">
 
-      <!-- TOP -->
-      <div class="flex justify-between items-start mb-6">
+      <!-- TOP ROW -->
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6 pb-6 border-b">
 
-        <div>
-          <p class="text-xs uppercase tracking-widest text-gray-400 mb-1">
-            Order ID
-          </p>
-          <p class="text-sm font-medium">
-            {{ order.order_id }}
-          </p>
+        <!-- LEFT: Order Info -->
+        <div class="space-y-3">
+          <div>
+            <p class="text-xs uppercase tracking-widest text-gray-400 mb-1">
+              Order ID
+            </p>
+            <p class="text-sm font-medium font-mono">
+              #{{ order.order_id }}
+            </p>
+          </div>
+          
+          <div>
+            <p class="text-xs uppercase tracking-widest text-gray-400 mb-1">
+              Ordered on
+            </p>
+            <p class="text-sm">
+              {{ order.created_at|date:"d M Y, g:i A" }}
+            </p>
+          </div>
         </div>
 
-        <span class="text-xs uppercase tracking-widest px-4 py-2 rounded-full
-          {% if order.status == 'delivered' %}
-            bg-green-100 text-green-700
-          {% elif order.status == 'pending' %}
-            bg-yellow-100 text-yellow-700
-          {% else %}
-            bg-gray-100 text-gray-600
-          {% endif %}
-        ">
-          {{ order.status }}
-        </span>
+        <!-- RIGHT: Status Badge -->
+        <div class="flex flex-col items-start md:items-end gap-2">
+          <span class="text-xs uppercase tracking-widest px-4 py-2 rounded-full font-medium
+            {% if order.status == 'delivered' %}
+              bg-green-100 text-green-700
+            {% elif order.status == 'shipped' %}
+              bg-blue-100 text-blue-700
+            {% elif order.status == 'pending' %}
+              bg-yellow-100 text-yellow-700
+            {% elif order.status == 'cancelled' %}
+              bg-red-100 text-red-700
+            {% else %}
+              bg-gray-100 text-gray-600
+            {% endif %}
+          ">
+            {{ order.status }}
+          </span>
+
+          <!-- Status Icon -->
+          <div class="flex items-center gap-2 text-xs text-gray-500">
+            {% if order.status == 'delivered' %}
+              <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+              </svg>
+              <span>Order delivered</span>
+            {% elif order.status == 'shipped' %}
+              <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+              </svg>
+              <span>On the way</span>
+            {% elif order.status == 'pending' %}
+              <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span>Processing</span>
+            {% endif %}
+          </div>
+        </div>
       </div>
 
-      <!-- DETAILS -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-sm">
+      <!-- BOTTOM ROW: Details Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
 
         <div>
           <p class="text-xs uppercase tracking-widest text-gray-400 mb-1">
             Total amount
           </p>
+          <p class="text-lg font-medium">
+            ₹{{ order.total_amount|floatformat:2 }}
+          </p>
+        </div>
+
+        <div>
+          <p class="text-xs uppercase tracking-widest text-gray-400 mb-1">
+            Items
+          </p>
           <p class="font-medium">
-            ₹ {{ order.total_amount }}
+            {{ order.items.count }} item{{ order.items.count|pluralize }}
           </p>
         </div>
 
@@ -145,29 +226,71 @@
           <p class="text-xs uppercase tracking-widest text-gray-400 mb-1">
             Payment
           </p>
-          <p class="font-medium">
-            Online
-          </p>
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+            </svg>
+            <p class="font-medium">
+              {{ order.payment_method|default:"Online" }}
+            </p>
+          </div>
         </div>
 
         <div>
           <p class="text-xs uppercase tracking-widest text-gray-400 mb-1">
-            Ordered on
+            Delivery to
           </p>
-          <p class="font-medium">
-            {{ order.created_at|date:"d M Y" }}
+          <p class="font-medium text-sm">
+            {{ order.shipping_address.name|default:"Default Address" }}
           </p>
         </div>
 
-        <div class="flex items-end">
-          <a href="#"
-             class="text-xs uppercase tracking-[0.3em]
-                    border border-black px-6 py-3
-                    hover:bg-black hover:text-white transition">
-            View details
-          </a>
-        </div>
+      </div>
 
+      <!-- ACTIONS -->
+      <div class="flex flex-wrap gap-3 pt-4 border-t">
+        <a href="{% url 'accounts:order_detail' order.id %}"
+           class="text-xs uppercase tracking-[0.3em]
+                  border border-black px-6 py-3 rounded-lg
+                  hover:bg-black hover:text-white transition flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+          </svg>
+          View details
+        </a>
+
+        {% if order.status == 'delivered' %}
+        <a href="#"
+           class="text-xs uppercase tracking-[0.3em]
+                  border border-gray-300 px-6 py-3 rounded-lg
+                  hover:border-black transition flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          Return
+        </a>
+        {% elif order.status == 'shipped' %}
+        <a href="#"
+           class="text-xs uppercase tracking-[0.3em]
+                  border border-gray-300 px-6 py-3 rounded-lg
+                  hover:border-black transition flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          Track order
+        </a>
+        {% endif %}
+
+        <a href="#"
+           class="text-xs uppercase tracking-[0.3em]
+                  text-gray-600 hover:text-black transition flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Need help?
+        </a>
       </div>
 
     </div>
@@ -176,21 +299,42 @@
   </div>
 
   {% else %}
-  <!-- EMPTY -->
-  <div class="text-center py-32 bg-white rounded-xl border border-gray-200">
-    <p class="text-sm text-gray-500 mb-6">
-      You have not placed any orders yet.
-    </p>
-    <a href="/"
-       class="text-xs uppercase tracking-[0.3em]
-              border border-black px-8 py-4
-              hover:bg-black hover:text-white transition">
-      Start shopping
-    </a>
+  <!-- EMPTY STATE -->
+  <div class="text-center py-20 md:py-32 bg-white rounded-xl border border-gray-200 shadow-sm">
+    <div class="max-w-md mx-auto px-6">
+      <!-- Empty Icon -->
+      <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
+        <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+        </svg>
+      </div>
+      
+      <h2 class="text-2xl font-light mb-3">
+        No orders yet
+      </h2>
+      <p class="text-sm text-gray-500 mb-8">
+        You haven't placed any orders yet. Start shopping to see your orders here.
+      </p>
+      
+      <a href="/"
+         class="inline-block text-xs uppercase tracking-[0.3em]
+                border border-black px-8 py-4 rounded-lg
+                hover:bg-black hover:text-white transition">
+        Start shopping
+      </a>
+    </div>
   </div>
   {% endif %}
 
 </section>
+
+<!-- Focus States CSS -->
+<style>
+  a:focus, button:focus, select:focus {
+    outline: 2px solid #000;
+    outline-offset: 2px;
+  }
+</style>
 
 </body>
 </html>
