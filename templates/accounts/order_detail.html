@@ -1,0 +1,268 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order #{{ order.order_id }} | The Fashion Flare</title>
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<!-- Header Navigation -->
+<header class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <nav class="flex items-center justify-between">
+            <a href="{% url 'accounts:orders' %}" class="flex items-center text-sm text-gray-600 hover:text-gray-900 transition">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back to Orders
+            </a>
+            <h1 class="text-xl font-semibold text-gray-900">Order Details</h1>
+            <div class="w-24"></div> <!-- Spacer for centering -->
+        </nav>
+    </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Order Summary Card -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+        
+        <!-- Order Header -->
+        <div class="border-b border-gray-200 bg-gray-50 px-6 py-4">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                    <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Order Number</h2>
+                    <p class="text-2xl font-bold text-gray-900 mt-1">#{{ order.order_id }}</p>
+                </div>
+                <div>
+  <span class="px-3 py-1 rounded-full text-xs font-semibold
+{% if order.status == 'pending' %} bg-yellow-100 text-yellow-700
+{% elif order.status == 'processing' %} bg-blue-100 text-blue-700
+{% elif order.status == 'shipped' %} bg-purple-100 text-purple-700
+{% elif order.status == 'delivered' %} bg-green-100 text-green-700
+{% elif order.status == 'cancelled' %} bg-red-100 text-red-700
+{% else %} bg-gray-100 text-gray-700
+{% endif %}">
+  {{ order.get_status_display }}
+</span>
+</div>
+            </div>
+        </div>
+
+        <!-- Order Info Grid -->
+        <div class="px-6 py-6">
+            <dl class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                
+                <!-- Order Date -->
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 uppercase tracking-wide">Order Date</dt>
+                    <dd class="mt-2 text-base font-semibold text-gray-900">{{ order.created_at|date:"F d, Y" }}</dd>
+                    <dd class="text-sm text-gray-500">{{ order.created_at|date:"g:i A" }}</dd>
+                </div>
+                 <div class="mt-4 text-sm text-gray-500">
+  <p>Order ID: <span class="font-medium text-gray-900">#{{ order.order_id }}</span></p>
+  <p>Last updated: {{ order.updated_at|date:"d M Y, g:i A" }}</p>
+</div>
+                <!-- Total Amount -->
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 uppercase tracking-wide">Total Amount</dt>
+                    <dd class="mt-2 text-2xl font-bold text-gray-900">₹{{ order.total_amount|floatformat:2 }}</dd>
+                </div>
+                  <!-- ORDER PROGRESS -->
+<div class="mt-6">
+  <h3 class="text-sm font-medium text-gray-500 mb-4">Order Progress</h3>
+
+  <div class="flex items-center justify-between relative">
+
+    <!-- LINE -->
+    <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-gray-200"></div>
+
+    {% with status=order.status %}
+    <!-- PLACED -->
+    <div class="relative z-10 flex flex-col items-center">
+      <div class="w-8 h-8 rounded-full flex items-center justify-center
+        {% if status in 'pending processing shipped delivered' %}
+          bg-black text-white
+        {% else %}
+          bg-gray-300
+        {% endif %}">
+        ✓
+      </div>
+      <span class="mt-2 text-xs font-medium">Placed</span>
+    </div>
+
+    <!-- PROCESSING -->
+    <div class="relative z-10 flex flex-col items-center">
+      <div class="w-8 h-8 rounded-full flex items-center justify-center
+        {% if status in 'processing shipped delivered' %}
+          bg-black text-white
+        {% else %}
+          bg-gray-300
+        {% endif %}">
+        ✓
+      </div>
+      <span class="mt-2 text-xs font-medium">Processing</span>
+    </div>
+
+    <!-- SHIPPED -->
+    <div class="relative z-10 flex flex-col items-center">
+      <div class="w-8 h-8 rounded-full flex items-center justify-center
+        {% if status in 'shipped delivered' %}
+          bg-black text-white
+        {% else %}
+          bg-gray-300
+        {% endif %}">
+        ✓
+      </div>
+      <span class="mt-2 text-xs font-medium">Shipped</span>
+    </div>
+
+    <!-- DELIVERED -->
+    <div class="relative z-10 flex flex-col items-center">
+      <div class="w-8 h-8 rounded-full flex items-center justify-center
+        {% if status == 'delivered' %}
+          bg-green-600 text-white
+        {% else %}
+          bg-gray-300
+        {% endif %}">
+        ✓
+      </div>
+      <span class="mt-2 text-xs font-medium">Delivered</span>
+    </div>
+    {% endwith %}
+  </div>
+</div>
+
+
+                <!-- Payment Method -->
+                {% if order.payment_method %}
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 uppercase tracking-wide">Payment Method</dt>
+                    <dd class="mt-2 text-base font-semibold text-gray-900">{{ order.payment_method }}</dd>
+                </div>
+                {% endif %}
+            </dl>
+        </div>
+
+        <!-- Shipping Address -->
+        {% if order.shipping_address %}
+        <div class="border-t border-gray-200 px-6 py-5 bg-gray-50">
+            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Shipping Address</h3>
+            <address class="not-italic text-base text-gray-900 leading-relaxed">
+                {{ order.shipping_address|linebreaks }}
+            </address>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <!-- Order Items -->
+    {% if order.items.all %}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <h3 class="text-lg font-semibold text-gray-900">Order Items</h3>
+        </div>
+        <div class="divide-y divide-gray-200">
+            {% for item in order.items.all %}
+            <div class="px-6 py-5 flex items-start gap-4 hover:bg-gray-50 transition">
+                {% if item.product.image %}
+                <div class="flex-shrink-0">
+                    <img src="{{ item.product.image.url }}" 
+                         alt="{{ item.product.name }}" 
+                         class="w-20 h-20 object-cover rounded-lg border border-gray-200">
+                </div>
+                {% endif %}
+                <div class="flex-1 min-w-0">
+                    <h4 class="text-base font-semibold text-gray-900 mb-1">{{ item.product.name }}</h4>
+                    {% if item.product.description %}
+                    <p class="text-sm text-gray-500 mb-2">{{ item.product.description|truncatewords:15 }}</p>
+                    {% endif %}
+                    <div class="flex items-center gap-4 text-sm text-gray-600">
+                        <span>Quantity: <span class="font-medium text-gray-900">{{ item.quantity }}</span></span>
+                        {% if item.size %}
+                        <span>Size: <span class="font-medium text-gray-900">{{ item.size }}</span></span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="text-right flex-shrink-0">
+                    <p class="text-lg font-bold text-gray-900">₹{{ item.price|floatformat:2 }}</p>
+                    {% if item.quantity > 1 %}
+                    <p class="text-xs text-gray-500 mt-1">₹{{ item.unit_price|floatformat:2 }} each</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Order Summary -->
+        <div class="border-t-2 border-gray-200 bg-gray-50 px-6 py-5">
+            <dl class="space-y-2">
+                {% if order.subtotal %}
+                <div class="flex justify-between text-sm">
+                    <dt class="text-gray-600">Subtotal</dt>
+                    <dd class="font-medium text-gray-900">₹{{ order.subtotal|floatformat:2 }}</dd>
+                </div>
+                {% endif %}
+                {% if order.shipping_cost %}
+                <div class="flex justify-between text-sm">
+                    <dt class="text-gray-600">Shipping</dt>
+                    <dd class="font-medium text-gray-900">₹{{ order.shipping_cost|floatformat:2 }}</dd>
+                </div>
+                {% endif %}
+                {% if order.tax %}
+                <div class="flex justify-between text-sm">
+                    <dt class="text-gray-600">Tax</dt>
+                    <dd class="font-medium text-gray-900">₹{{ order.tax|floatformat:2 }}</dd>
+                </div>
+                {% endif %}
+                <div class="flex justify-between text-lg font-bold pt-3 border-t border-gray-300">
+                    <dt class="text-gray-900">Total</dt>
+                    <dd class="text-gray-900">₹{{ order.total_amount|floatformat:2 }}</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row gap-3">
+        <a href="{% url 'accounts:orders' %}"
+           class="flex-1 text-center px-6 py-3 border-2 border-gray-900 bg-white text-black font-semibold text-sm uppercase tracking-wider rounded-lg hover:bg-white hover:border-gray-800 transition-all duration-200">
+            View All Orders
+        </a>
+
+        <a href="/media/invoices/invoice_{{ order.order_id }}.pdf"
+   class="inline-block px-4 py-2 border rounded hover:bg-black hover:text-white">
+   Download Invoice (PDF)
+</a>
+
+        
+        {% if order.status == 'pending' or order.status == 'processing' %}
+<form method="POST" action="{% url 'accounts:cancel_order' order.id %}">
+  {% csrf_token %}
+  <button type="submit"
+    onclick="return confirm('Are you sure you want to cancel this order?')"
+    class="px-6 py-3 border-2 border-red-500 text-red-600 rounded-lg font-semibold hover:bg-red-500 hover:text-white transition">
+    Cancel Order
+  </button>
+</form>
+{% elif order.status == 'cancelled' %}
+<p class="text-sm text-red-600 font-medium mt-2">
+  This order has been cancelled.
+</p>
+{% else %}
+<p class="text-sm text-gray-500 mt-2">
+  This order cannot be cancelled because it has already been shipped.
+</p>
+{% endif %}
+
+    </div>
+
+    
+</main>
+
+</body>
+</html>

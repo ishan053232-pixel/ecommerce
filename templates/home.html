@@ -598,10 +598,11 @@ header {
             </nav>
 
             <!-- Right Side Actions -->
-            <div class="flex items-center gap-7">
+            <div class="flex items-center gap-4">
                 
                 <!-- Search (Desktop) -->
-                <form method="get" action="{% url 'product_search' %}" class="hidden md:block relative">
+                <form method="get" action="{% url 'product_search' %}" 
+                     class="hidden md:block relative mr-8">
                     <input
                         type="text"
                         name="q"
@@ -752,6 +753,8 @@ header {
         </div>
     </section>
     {% else %}
+
+
     <!-- FALLBACK HERO (when no hero_items exist) -->
     <section class="relative w-full h-[80vh] overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black">
         <div class="absolute inset-0 w-full h-full">

@@ -7,11 +7,24 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-secret-key-change-later")
 DEBUG = True
-RAZORPAY_KEY_ID = "rzp_test_xxxxxxxxxx"
-RAZORPAY_KEY_SECRET = "xxxxxxxxxxxx"
+RAZORPAY_KEY_ID = "rzp_test_SBBsHLhwetxXl7"
+RAZORPAY_KEY_SECRET = "9EDuzgTj8Z9triLzv5tt9VJ7"
 
 
 ALLOWED_HOSTS = ['*']
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = 'fashionflare.shops@gmail.com'
+EMAIL_HOST_PASSWORD = 'bywxxhherfszauzx'  # Use App Password if 2FA is enabled
+
+DEFAULT_FROM_EMAIL = 'The Fashion Flare <fashionflare.shops@gmail.com>'
+
 
 
 # APPLICATIONS
@@ -24,12 +37,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'core',
     'adminsortable2',
+    'orders.apps.OrdersConfig',
 
     # Local apps
     'accounts',
     'products',
     'cart',
-    'orders',
+    
 ]
 
 # MIDDLEWARE

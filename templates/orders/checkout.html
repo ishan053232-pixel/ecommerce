@@ -186,7 +186,8 @@ document.getElementById("payBtn").onclick = function () {
     name: "The Fashion Flare",
     description: "Order Payment",
     order_id: razorpayOrderId,
-    callback_url: "{% url 'payment_success' %}",
+    callback_url: "{% url 'orders:payment_success' %}",
+
     theme: {
       color: "#000000"
     }

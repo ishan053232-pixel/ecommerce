@@ -47,3 +47,12 @@ class Address(models.Model):
 
     def __str__(self):
         return f"{self.full_name} - {self.city}"
+    
+    @property
+    def formatted_address(self):
+        return (
+            f"{self.full_name}, {self.phone}\n"
+            f"{self.address_line_1}"
+            f"{', ' + self.address_line_2 if self.address_line_2 else ''}\n"
+            f"{self.city}, {self.state} - {self.postal_code}"
+        )
