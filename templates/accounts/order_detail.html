@@ -6,21 +6,86 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order #{{ order.order_id }} | The Fashion Flare</title>
     <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    <style>
+        /* Order Progress Animations */
+        @keyframes slideInProgress {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+       .progress-step {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.step-complete {
+    background-color: #111827;
+    border-color: #111827;
+    color: white;
+}
+
+.step-current {
+    border-color: #111827;
+    animation: pulse 1.8s ease-in-out infinite;
+}
+
+.step-future {
+    background-color: white;
+    border-color: #d1d5db;
+    color: #9ca3af;
+}
+
+
+        .progress-line-fill {
+            transition: width 1s ease-out 0.5s;
+        }
+
+        .current-step {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Custom tooltip styles */
+        .step-tooltip {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+        }
+
+        .progress-step:hover .step-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
 
 <!-- Header Navigation -->
-<header class="bg-white border-b border-gray-200">
+<header class="bg-white border-b border-gray-200 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <nav class="flex items-center justify-between">
-            <a href="{% url 'accounts:orders' %}" class="flex items-center text-sm text-gray-600 hover:text-gray-900 transition">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="{% url 'accounts:orders' %}" class="flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors group">
+                <svg class="w-5 h-5 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                 </svg>
                 Back to Orders
             </a>
             <h1 class="text-xl font-semibold text-gray-900">Order Details</h1>
-            <div class="w-24"></div> <!-- Spacer for centering -->
+            <div class="w-24"></div>
         </nav>
     </div>
 </header>
@@ -28,130 +93,311 @@
 <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     
     <!-- Order Summary Card -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
         
         <!-- Order Header -->
-        <div class="border-b border-gray-200 bg-gray-50 px-6 py-4">
+        <div class="border-b border-gray-200 bg-gradient-to-br from-gray-50 to-white px-6 py-5">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
-                    <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Order Number</h2>
-                    <p class="text-2xl font-bold text-gray-900 mt-1">#{{ order.order_id }}</p>
+                    <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Order Number</h2>
+                    <p class="text-2xl font-bold text-gray-900">#{{ order.order_id }}</p>
                 </div>
                 <div>
-  <span class="px-3 py-1 rounded-full text-xs font-semibold
-{% if order.status == 'pending' %} bg-yellow-100 text-yellow-700
-{% elif order.status == 'processing' %} bg-blue-100 text-blue-700
-{% elif order.status == 'shipped' %} bg-purple-100 text-purple-700
-{% elif order.status == 'delivered' %} bg-green-100 text-green-700
-{% elif order.status == 'cancelled' %} bg-red-100 text-red-700
-{% else %} bg-gray-100 text-gray-700
-{% endif %}">
-  {{ order.get_status_display }}
-</span>
-</div>
+                    <span class="inline-block px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide
+                        {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800 border border-yellow-200
+                        {% elif order.status == 'processing' %}bg-blue-100 text-blue-800 border border-blue-200
+                        {% elif order.status == 'shipped' %}bg-purple-100 text-purple-800 border border-purple-200
+                        {% elif order.status == 'delivered' %}bg-green-100 text-green-800 border border-green-200
+                        {% elif order.status == 'cancelled' %}bg-red-100 text-red-800 border border-red-200
+                        {% else %}bg-gray-100 text-gray-800 border border-gray-200
+                        {% endif %}">
+                        {{ order.get_status_display }}
+                    </span>
+                </div>
             </div>
         </div>
 
         <!-- Order Info Grid -->
         <div class="px-6 py-6">
-            <dl class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <dl class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 
                 <!-- Order Date -->
                 <div>
-                    <dt class="text-sm font-medium text-gray-500 uppercase tracking-wide">Order Date</dt>
-                    <dd class="mt-2 text-base font-semibold text-gray-900">{{ order.created_at|date:"F d, Y" }}</dd>
-                    <dd class="text-sm text-gray-500">{{ order.created_at|date:"g:i A" }}</dd>
+                    <dt class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Order Date</dt>
+                    <dd class="text-base font-semibold text-gray-900">{{ order.created_at|date:"F d, Y" }}</dd>
+                    <dd class="text-sm text-gray-500 mt-0.5">{{ order.created_at|date:"g:i A" }}</dd>
                 </div>
-                 <div class="mt-4 text-sm text-gray-500">
-  <p>Order ID: <span class="font-medium text-gray-900">#{{ order.order_id }}</span></p>
-  <p>Last updated: {{ order.updated_at|date:"d M Y, g:i A" }}</p>
-</div>
+
                 <!-- Total Amount -->
                 <div>
-                    <dt class="text-sm font-medium text-gray-500 uppercase tracking-wide">Total Amount</dt>
-                    <dd class="mt-2 text-2xl font-bold text-gray-900">₹{{ order.total_amount|floatformat:2 }}</dd>
+                    <dt class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Total Amount</dt>
+                    <dd class="text-2xl font-bold text-gray-900">₹{{ order.total_amount|floatformat:2 }}</dd>
                 </div>
-                  <!-- ORDER PROGRESS -->
-<div class="mt-6">
-  <h3 class="text-sm font-medium text-gray-500 mb-4">Order Progress</h3>
-
-  <div class="flex items-center justify-between relative">
-
-    <!-- LINE -->
-    <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-gray-200"></div>
-
-    {% with status=order.status %}
-    <!-- PLACED -->
-    <div class="relative z-10 flex flex-col items-center">
-      <div class="w-8 h-8 rounded-full flex items-center justify-center
-        {% if status in 'pending processing shipped delivered' %}
-          bg-black text-white
-        {% else %}
-          bg-gray-300
-        {% endif %}">
-        ✓
-      </div>
-      <span class="mt-2 text-xs font-medium">Placed</span>
-    </div>
-
-    <!-- PROCESSING -->
-    <div class="relative z-10 flex flex-col items-center">
-      <div class="w-8 h-8 rounded-full flex items-center justify-center
-        {% if status in 'processing shipped delivered' %}
-          bg-black text-white
-        {% else %}
-          bg-gray-300
-        {% endif %}">
-        ✓
-      </div>
-      <span class="mt-2 text-xs font-medium">Processing</span>
-    </div>
-
-    <!-- SHIPPED -->
-    <div class="relative z-10 flex flex-col items-center">
-      <div class="w-8 h-8 rounded-full flex items-center justify-center
-        {% if status in 'shipped delivered' %}
-          bg-black text-white
-        {% else %}
-          bg-gray-300
-        {% endif %}">
-        ✓
-      </div>
-      <span class="mt-2 text-xs font-medium">Shipped</span>
-    </div>
-
-    <!-- DELIVERED -->
-    <div class="relative z-10 flex flex-col items-center">
-      <div class="w-8 h-8 rounded-full flex items-center justify-center
-        {% if status == 'delivered' %}
-          bg-green-600 text-white
-        {% else %}
-          bg-gray-300
-        {% endif %}">
-        ✓
-      </div>
-      <span class="mt-2 text-xs font-medium">Delivered</span>
-    </div>
-    {% endwith %}
-  </div>
-</div>
-
 
                 <!-- Payment Method -->
                 {% if order.payment_method %}
                 <div>
-                    <dt class="text-sm font-medium text-gray-500 uppercase tracking-wide">Payment Method</dt>
-                    <dd class="mt-2 text-base font-semibold text-gray-900">{{ order.payment_method }}</dd>
+                    <dt class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Payment Method</dt>
+                    <dd class="text-base font-semibold text-gray-900 capitalize">{{ order.payment_method }}</dd>
                 </div>
                 {% endif %}
             </dl>
+
+            <!-- Last Updated Info -->
+            <div class="mt-6 pt-5 border-t border-gray-200">
+                <p class="text-xs text-gray-500">
+                    Last updated: <span class="font-semibold text-gray-700">{{ order.updated_at|date:"d M Y, g:i A" }}</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Professional Order Progress Tracker -->
+        <div class="px-6 py-8 bg-gradient-to-br from-gray-50 via-white to-gray-50 border-t border-gray-200">
+            <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-8">Order Progress</h3>
+            
+            {% with status=order.status %}
+            <div class="relative px-4">
+                <!-- Background Progress Line -->
+                <div class="absolute top-6 left-0 right-0 h-1 bg-gray-200 rounded-full"></div>
+                
+                <!-- Active Progress Line -->
+                <div class="absolute top-6 left-0 h-1 bg-gray-900 rounded-full transition-all duration-700"
+     style="
+       width:
+       {% if order.status == 'pending' %}0%
+       {% elif order.status == 'processing' %}33%
+       {% elif order.status == 'shipped' %}66%
+       {% elif order.status == 'delivered' %}100%
+       {% endif %}
+     ">
+</div>
+
+                
+                <!-- Progress Steps -->
+                <div class="relative flex items-start justify-between">
+                    
+                    <!-- Step 1: Placed -->
+                    <div class="progress-step flex flex-col items-center w-24 relative">
+                        <div class="relative group">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300
+                                {% if status in 'pending,processing,shipped,delivered' %}
+                                    bg-gray-900 border-gray-900 shadow-lg
+                                {% else %}
+                                    bg-white border-gray-300
+                                {% endif %}">
+                                {% if status in 'pending,processing,shipped,delivered' %}
+                                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                {% else %}
+                                    <div class="w-3 h-3 rounded-full bg-gray-300"></div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Tooltip -->
+                            <div class="step-tooltip absolute -top-12 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-lg">
+                                Order Placed
+                                <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                        </div>
+                        <span class="mt-3 text-xs font-semibold text-center
+                            {% if status in 'pending,processing,shipped,delivered' %}text-gray-900{% else %}text-gray-500{% endif %}">
+                            Placed
+                        </span>
+                        {% if status == 'pending' %}
+                        <span class="mt-1 text-xs text-gray-500 text-center">{{ order.created_at|date:"M d" }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Step 2: Processing -->
+                    <div class="progress-step flex flex-col items-center w-24 relative">
+                        <div class="relative group">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300
+                                {% if status in 'processing,shipped,delivered' %}
+                                    bg-gray-900 border-gray-900 shadow-lg
+                                {% elif status == 'pending' %}
+                                    bg-blue-50 border-blue-300 current-step
+                                {% else %}
+                                    bg-white border-gray-300
+                                {% endif %}">
+                                {% if status in 'processing,shipped,delivered' %}
+                                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                {% elif status == 'pending' %}
+                                    <svg class="w-5 h-5 text-blue-600 animate-spin" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                {% else %}
+                                    <div class="w-3 h-3 rounded-full bg-gray-300"></div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Tooltip -->
+                            <div class="step-tooltip absolute -top-12 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-lg">
+                                Being Processed
+                                <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                        </div>
+                        <span class="mt-3 text-xs font-semibold text-center
+                            {% if status in 'processing,shipped,delivered' %}text-gray-900{% elif status == 'pending' %}text-blue-600{% else %}text-gray-500{% endif %}">
+                            Processing
+                        </span>
+                    </div>
+
+                    <!-- Step 3: Shipped -->
+                    <div class="progress-step flex flex-col items-center w-24 relative">
+                        <div class="relative group">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300
+                                {% if status in 'shipped,delivered' %}
+                                    bg-gray-900 border-gray-900 shadow-lg
+                                {% elif status == 'processing' %}
+                                    bg-purple-50 border-purple-300 current-step
+                                {% else %}
+                                    bg-white border-gray-300
+                                {% endif %}">
+                                {% if status in 'shipped,delivered' %}
+                                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                {% elif status == 'processing' %}
+                                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                                    </svg>
+                                {% else %}
+                                    <div class="w-3 h-3 rounded-full bg-gray-300"></div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Tooltip -->
+                            <div class="step-tooltip absolute -top-12 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-lg">
+                                Out for Delivery
+                                <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                        </div>
+                        <span class="mt-3 text-xs font-semibold text-center
+                            {% if status in 'shipped,delivered' %}text-gray-900{% elif status == 'processing' %}text-purple-600{% else %}text-gray-500{% endif %}">
+                            Shipped
+                        </span>
+                    </div>
+
+                    <!-- Step 4: Delivered -->
+                    <div class="progress-step flex flex-col items-center w-24 relative">
+                        <div class="relative group">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300
+                                {% if status == 'delivered' %}
+                                    bg-gradient-to-br from-green-500 to-green-600 border-green-600 shadow-xl shadow-green-200
+                                {% elif status == 'shipped' %}
+                                    bg-green-50 border-green-300 current-step
+                                {% else %}
+                                    bg-white border-gray-300
+                                {% endif %}">
+                                {% if status == 'delivered' %}
+                                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                {% elif status == 'shipped' %}
+                                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                                    </svg>
+                                {% else %}
+                                    <div class="w-3 h-3 rounded-full bg-gray-300"></div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Tooltip -->
+                            <div class="step-tooltip absolute -top-12 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-lg">
+                                {% if status == 'delivered' %}Delivered Successfully{% else %}Pending Delivery{% endif %}
+                                <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                        </div>
+                        <span class="mt-3 text-xs font-semibold text-center
+                            {% if status == 'delivered' %}text-green-600{% elif status == 'shipped' %}text-green-600{% else %}text-gray-500{% endif %}">
+                            Delivered
+                        </span>
+                        {% if status == 'delivered' %}
+                        <span class="mt-1 text-xs text-green-600 text-center font-medium">Completed</span>
+                        {% endif %}
+                    </div>
+                    
+                </div>
+            </div>
+            {% endwith %}
+
+
+            
+            
+            <!-- Status Description -->
+             
+            <div class="mt-8 p-4 bg-white border border-gray-200 rounded-lg">
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 mt-0.5">
+                        {% if order.status == 'pending' %}
+                        <svg class="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                        </svg>
+                        {% elif order.status == 'processing' %}
+                        <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                        </svg>
+                        {% elif order.status == 'shipped' %}
+                        <svg class="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+                            <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z"/>
+                        </svg>
+                        {% elif order.status == 'delivered' %}
+                        <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        {% else %}
+                        <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                        </svg>
+                        {% endif %}
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="text-sm font-semibold text-gray-900 mb-1">
+                            {% if order.status == 'pending' %}
+                                Order Received
+                            {% elif order.status == 'processing' %}
+                                Order is Being Prepared
+                            {% elif order.status == 'shipped' %}
+                                On the Way
+                            {% elif order.status == 'delivered' %}
+                                Successfully Delivered
+                            {% elif order.status == 'cancelled' %}
+                                Order Cancelled
+                            {% else %}
+                                Order Status
+                            {% endif %}
+                        </h4>
+                        <p class="text-sm text-gray-600">
+                            {% if order.status == 'pending' %}
+                                Your order has been received and will be processed shortly.
+                            {% elif order.status == 'processing' %}
+                                We're preparing your items for shipment. You'll be notified once shipped.
+                            {% elif order.status == 'shipped' %}
+                                Your order is on its way! Expected delivery within 3-5 business days.
+                            {% elif order.status == 'delivered' %}
+                                Your order has been delivered. Thank you for shopping with us!
+                            {% elif order.status == 'cancelled' %}
+                                This order has been cancelled. If you have questions, please contact support.
+                            {% else %}
+                                Check back for updates on your order status.
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Shipping Address -->
         {% if order.shipping_address %}
         <div class="border-t border-gray-200 px-6 py-5 bg-gray-50">
-            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Shipping Address</h3>
-            <address class="not-italic text-base text-gray-900 leading-relaxed">
+            <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Shipping Address</h3>
+            <address class="not-italic text-sm text-gray-900 leading-relaxed">
                 {{ order.shipping_address|linebreaks }}
             </address>
         </div>
@@ -161,18 +407,18 @@
 
     <!-- Order Items -->
     {% if order.items.all %}
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
-        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-br from-gray-50 to-white">
             <h3 class="text-lg font-semibold text-gray-900">Order Items</h3>
         </div>
         <div class="divide-y divide-gray-200">
             {% for item in order.items.all %}
-            <div class="px-6 py-5 flex items-start gap-4 hover:bg-gray-50 transition">
+            <div class="px-6 py-5 flex items-start gap-4 hover:bg-gray-50 transition-colors duration-200">
                 {% if item.product.image %}
                 <div class="flex-shrink-0">
                     <img src="{{ item.product.image.url }}" 
                          alt="{{ item.product.name }}" 
-                         class="w-20 h-20 object-cover rounded-lg border border-gray-200">
+                         class="w-20 h-20 object-cover rounded-lg border border-gray-200 shadow-sm">
                 </div>
                 {% endif %}
                 <div class="flex-1 min-w-0">
@@ -181,9 +427,15 @@
                     <p class="text-sm text-gray-500 mb-2">{{ item.product.description|truncatewords:15 }}</p>
                     {% endif %}
                     <div class="flex items-center gap-4 text-sm text-gray-600">
-                        <span>Quantity: <span class="font-medium text-gray-900">{{ item.quantity }}</span></span>
+                        <span class="inline-flex items-center">
+                            <span class="text-gray-500">Qty:</span>
+                            <span class="ml-1 font-semibold text-gray-900">{{ item.quantity }}</span>
+                        </span>
                         {% if item.size %}
-                        <span>Size: <span class="font-medium text-gray-900">{{ item.size }}</span></span>
+                        <span class="inline-flex items-center">
+                            <span class="text-gray-500">Size:</span>
+                            <span class="ml-1 font-semibold text-gray-900">{{ item.size }}</span>
+                        </span>
                         {% endif %}
                     </div>
                 </div>
@@ -203,19 +455,19 @@
                 {% if order.subtotal %}
                 <div class="flex justify-between text-sm">
                     <dt class="text-gray-600">Subtotal</dt>
-                    <dd class="font-medium text-gray-900">₹{{ order.subtotal|floatformat:2 }}</dd>
+                    <dd class="font-semibold text-gray-900">₹{{ order.subtotal|floatformat:2 }}</dd>
                 </div>
                 {% endif %}
                 {% if order.shipping_cost %}
                 <div class="flex justify-between text-sm">
                     <dt class="text-gray-600">Shipping</dt>
-                    <dd class="font-medium text-gray-900">₹{{ order.shipping_cost|floatformat:2 }}</dd>
+                    <dd class="font-semibold text-gray-900">₹{{ order.shipping_cost|floatformat:2 }}</dd>
                 </div>
                 {% endif %}
                 {% if order.tax %}
                 <div class="flex justify-between text-sm">
                     <dt class="text-gray-600">Tax</dt>
-                    <dd class="font-medium text-gray-900">₹{{ order.tax|floatformat:2 }}</dd>
+                    <dd class="font-semibold text-gray-900">₹{{ order.tax|floatformat:2 }}</dd>
                 </div>
                 {% endif %}
                 <div class="flex justify-between text-lg font-bold pt-3 border-t border-gray-300">
@@ -228,40 +480,56 @@
     {% endif %}
 
     <!-- Action Buttons -->
-    <div class="flex flex-col sm:flex-row gap-3">
+    <div class="flex flex-wrap items-center gap-3">
+        <!-- View All Orders Button -->
         <a href="{% url 'accounts:orders' %}"
-           class="flex-1 text-center px-6 py-3 border-2 border-gray-900 bg-white text-black font-semibold text-sm uppercase tracking-wider rounded-lg hover:bg-white hover:border-gray-800 transition-all duration-200">
+           class="inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 shadow-sm">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+            </svg>
             View All Orders
         </a>
 
+        <!-- Download Invoice Button -->
         <a href="/media/invoices/invoice_{{ order.order_id }}.pdf"
-   class="inline-block px-4 py-2 border rounded hover:bg-black hover:text-white">
-   Download Invoice (PDF)
-</a>
+           download
+           class="inline-flex items-center px-4 py-2 border border-gray-900 bg-white text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-900 hover:text-white transition-all duration-200 shadow-sm">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            Download Invoice
+        </a>
 
-        
+        <!-- Cancel Order Button -->
         {% if order.status == 'pending' or order.status == 'processing' %}
-<form method="POST" action="{% url 'accounts:cancel_order' order.id %}">
-  {% csrf_token %}
-  <button type="submit"
-    onclick="return confirm('Are you sure you want to cancel this order?')"
-    class="px-6 py-3 border-2 border-red-500 text-red-600 rounded-lg font-semibold hover:bg-red-500 hover:text-white transition">
-    Cancel Order
-  </button>
-</form>
-{% elif order.status == 'cancelled' %}
-<p class="text-sm text-red-600 font-medium mt-2">
-  This order has been cancelled.
-</p>
-{% else %}
-<p class="text-sm text-gray-500 mt-2">
-  This order cannot be cancelled because it has already been shipped.
-</p>
-{% endif %}
-
+        <form method="POST" action="{% url 'accounts:cancel_order' order.id %}" class="inline-block">
+            {% csrf_token %}
+            <button type="submit"
+                    onclick="return confirm('Are you sure you want to cancel this order?')"
+                    class="inline-flex items-center px-4 py-2 border border-red-500 bg-white text-sm font-medium text-red-600 rounded-lg hover:bg-red-500 hover:text-white transition-all duration-200 shadow-sm">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                Cancel Order
+            </button>
+        </form>
+        {% elif order.status == 'cancelled' %}
+        <p class="inline-flex items-center px-4 py-2 text-sm text-red-600 font-medium bg-red-50 rounded-lg border border-red-200">
+            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+            </svg>
+            This order has been cancelled
+        </p>
+        {% else %}
+        <p class="inline-flex items-center px-4 py-2 text-sm text-gray-500 bg-gray-100 rounded-lg border border-gray-200">
+            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+            Cannot cancel - order already shipped
+        </p>
+        {% endif %}
     </div>
 
-    
 </main>
 
 </body>
